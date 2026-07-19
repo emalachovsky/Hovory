@@ -534,22 +534,36 @@ document.getElementById('refreshBtn').addEventListener('click', async () => {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
   
-  const rawData = await loadDataFromCSV();
-  DATA = rawData;
-  classifyData();
-  updateStats();
-  render();
+  try {
+    const rawData = await loadDataFromCSV();
+    DATA = rawData;
+    if (DATA.length > 0) {
+      classifyData();
+      updateStats();
+      render();
+    }
+  } catch (error) {
+    console.error('Chyba pri refresh:', error);
+  }
   
   btn.classList.remove('spinning');
 });
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function initialize() {
   const rawData = await loadDataFromCSV();
   DATA = rawData;
-  classifyData();
-  updateStats();
-  render();
-});
+  if (DATA.length > 0) {
+    classifyData();
+    updateStats();
+    render();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initialize);
+} else {
+  initialize();
+}
 </script>
 </body>
 </html>
