@@ -261,6 +261,7 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T/pub?gid=356854980&single=true&output=csv';
 
 let DATA = [];
+let lastSync = null;
 
 function parseCSVLine(line) {
   const result = [];
@@ -287,39 +288,85 @@ function parseCSVLine(line) {
 }
 
 async function loadDataFromCSV() {
+  const btn = document.getElementById('refreshBtn');
+  
   try {
+    console.log('Pokúšam stiahnuť aktuálne dáta z internetu...');
+    btn.title = 'Načítavam...';
+    
     const response = await fetch(CSV_URL);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
     const csv = await response.text();
-    const lines = csv.trim().split('\n');
-    const headers = parseCSVLine(lines[0]);
+    const data = await parseCSV(csv);
     
-    const rawData = [];
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
-      const values = parseCSVLine(lines[i]);
-      const row = {};
-      headers.forEach((header, idx) => {
-        row[header] = values[idx] || '';
-      });
-      if (row['Názov firmy'] || row['Meno']) {
-        rawData.push({
-          company: row['Názov firmy'] || '',
-          name: row['Meno'] || '',
-          tel: row['Telefón'] || '',
-          phoneDisplay: row['Telefón'] || '',
-          time: row['Čas'] || '',
-          date: row['Dátum'] || '',
-          note: row['Poznámka'] || '',
-          next: row['Nasleduje'] || ''
-        });
-      }
+    if (data.length > 0) {
+      // Uložiť do localStorage
+      localStorage.setItem('hovory_data', JSON.stringify(data));
+      lastSync = new Date().toLocaleTimeString('sk-SK');
+      localStorage.setItem('hovory_lastsync', lastSync);
+      
+      console.log(`✅ Úspešne stiahnuté ${data.length} kontaktov. Uložené lokálne.`);
+      btn.title = `Posledná synchronizácia: ${lastSync}`;
+      return data;
+    } else {
+      throw new Error('Žiadne dáta v CSV');
     }
-    
-    return rawData;
   } catch (error) {
-    console.error('Chyba pri čítaní CSV:', error);
-    return [];
+    console.warn('❌ Chyba pri sťahovaní:', error.message);
+    
+    // Fallback: Načítať zo localStorage
+    console.log('Načítavam uložené dáta z mobilného úložiska...');
+    const stored = localStorage.getItem('hovory_data');
+    lastSync = localStorage.getItem('hovory_lastsync');
+    
+    if (stored) {
+      try {
+        const data = JSON.parse(stored);
+        console.log(`✅ Načítané ${data.length} kontaktov z lokálneho úložiska.`);
+        if (lastSync) {
+          btn.title = `⚠️ Offline režim. Posledná sync: ${lastSync}`;
+        }
+        return data;
+      } catch (e) {
+        console.error('Chyba pri parsovaní uložených dát:', e);
+        return [];
+      }
+    } else {
+      console.error('Žiadne uložené dáta a internet nie je dostupný.');
+      btn.title = '❌ Žiadne dáta a bez internetu';
+      return [];
+    }
   }
+}
+
+async function parseCSV(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = parseCSVLine(lines[0]);
+  
+  const rawData = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const values = parseCSVLine(lines[i]);
+    const row = {};
+    headers.forEach((header, idx) => {
+      row[header] = values[idx] || '';
+    });
+    if (row['Názov firmy'] || row['Meno']) {
+      rawData.push({
+        company: row['Názov firmy'] || '',
+        name: row['Meno'] || '',
+        tel: row['Telefón'] || '',
+        phoneDisplay: row['Telefón'] || '',
+        time: row['Čas'] || '',
+        date: row['Dátum'] || '',
+        note: row['Poznámka'] || '',
+        next: row['Nasleduje'] || ''
+      });
+    }
+  }
+  
+  return rawData;
 }
 
 function parseSkDate(s){
@@ -562,12 +609,26 @@ document.getElementById('refreshBtn').addEventListener('click', async () => {
 });
 
 async function initialize() {
+  // Obnoviť stav online/offline
+  lastSync = localStorage.getItem('hovory_lastsync');
+  const btn = document.getElementById('refreshBtn');
+  
+  if (lastSync) {
+    btn.title = `📱 Posledná synchronizácia: ${lastSync}`;
+  }
+  
   const rawData = await loadDataFromCSV();
   DATA = rawData;
   if (DATA.length > 0) {
     classifyData();
     updateStats();
     render();
+  } else {
+    // Zobraz prázdny stav ak nemáme dáta
+    document.getElementById('list').innerHTML = emptyState(
+      'Žiadne dáta k dispozícii.',
+      'Stlačte 🔄 na stiahnutie dát z internetu.'
+    );
   }
 }
 
