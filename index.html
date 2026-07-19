@@ -358,20 +358,20 @@ async function loadDataFromSheet() {
       const values = parseCSVLine(lines[i]);
       if (values.length === 0 || values.every(v => !v)) continue;
       
-      const company = companyIdx >= 0 ? values[companyIdx] : '';
-      const name = nameIdx >= 0 ? values[nameIdx] : '';
+      const company = (companyIdx >= 0 && values[companyIdx]) ? String(values[companyIdx]) : '';
+      const name = (nameIdx >= 0 && values[nameIdx]) ? String(values[nameIdx]) : '';
       
-      if (!company && !name) continue;
+      if (!company.trim() && !name.trim()) continue;
       
       data.push({
         company: company.trim(),
         name: name.trim(),
-        tel: (telIdx >= 0 ? values[telIdx] : '').trim(),
-        phoneDisplay: (telIdx >= 0 ? values[telIdx] : '').trim(),
-        date: (dateIdx >= 0 ? values[dateIdx] : '').trim(),
-        time: (timeIdx >= 0 ? values[timeIdx] : '').trim(),
-        note: (noteIdx >= 0 ? values[noteIdx] : '').trim(),
-        next: (nextIdx >= 0 ? values[nextIdx] : '').trim()
+        tel: ((telIdx >= 0 && values[telIdx]) ? String(values[telIdx]) : '').trim(),
+        phoneDisplay: ((telIdx >= 0 && values[telIdx]) ? String(values[telIdx]) : '').trim(),
+        date: ((dateIdx >= 0 && values[dateIdx]) ? String(values[dateIdx]) : '').trim(),
+        time: ((timeIdx >= 0 && values[timeIdx]) ? String(values[timeIdx]) : '').trim(),
+        note: ((noteIdx >= 0 && values[noteIdx]) ? String(values[noteIdx]) : '').trim(),
+        next: ((nextIdx >= 0 && values[nextIdx]) ? String(values[nextIdx]) : '').trim()
       });
     }
     
