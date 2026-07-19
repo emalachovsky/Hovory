@@ -324,9 +324,21 @@ async function loadDataFromCSV() {
 
 function parseSkDate(s){
   if(!s) return null;
-  const m = s.trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if(!m) return null;
-  return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+  s = s.trim();
+  
+  // Formát: 19.7.2026
+  let m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if(m) return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+  
+  // Formát: Sun Jul 19 2026 (alebo iný JS Date format)
+  const d = new Date(s);
+  if(!isNaN(d.getTime())) return d;
+  
+  // ISO formát: 2026-07-19
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
+  
+  return null;
 }
 function parseTimeMinutes(t){
   if(!t) return 9999;
