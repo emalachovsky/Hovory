@@ -282,81 +282,106 @@
 <script>
 let DATA = [];
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1yjOl0-yYSOI2lTCxflBfZWiohGkQmJkMVJLIlxGBUdU/export?format=csv';
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+// Viacero CORS proxy - skúšajú sa postupne
+const CORS_PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+  'https://cors-anywhere.herokuapp.com/',
+  'https://api.codetabs.com/v1/proxy?quest='
+];
+
 const now = new Date();
 const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-// Načítanie dát z Google Sheetu cez CORS proxy
+// Načítanie dát z Google Sheetu cez CORS proxy (s fallbackami)
 async function loadDataFromSheet() {
-  try {
-    console.log('🔄 Načítavam CSV z Sheetu cez CORS proxy...');
-    
-    const proxyUrl = CORS_PROXY + encodeURIComponent(SHEET_URL);
-    console.log('URL:', proxyUrl);
-    
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const csv = await response.text();
-    console.log('📥 CSV vrátený, počet znakov:', csv.length);
-    
-    const lines = csv.trim().split('\n');
-    if (lines.length < 2) {
-      console.error('⚠️ Sheet je prázdny');
-      return [];
-    }
-    
-    const headers = parseCSVLine(lines[0]);
-    console.log('📋 Headers:', headers);
-    
-    // Nájdi indexy stĺpcov (flexibilne mapovanie)
-    const getColIndex = (names) => {
-      for (const name of (Array.isArray(names) ? names : [names])) {
-        const idx = headers.findIndex(h => h.toLowerCase().trim().includes(name.toLowerCase()));
-        if (idx !== -1) {
-          console.log(`✓ Nájdený stĺpec "${name}" na pozícii ${idx}: "${headers[idx]}"`);
-          return idx;
-        }
+  for (let proxyIndex = 0; proxyIndex < CORS_PROXIES.length; proxyIndex++) {
+    try {
+      const proxy = CORS_PROXIES[proxyIndex];
+      console.log(`🔄 [Pokus ${proxyIndex + 1}/${CORS_PROXIES.length}] Načítavam cez proxy: ${proxy}`);
+      
+      let proxyUrl;
+      if (proxy.includes('?quest=')) {
+        proxyUrl = proxy + encodeURIComponent(SHEET_URL);
+      } else if (proxy.includes('?')) {
+        proxyUrl = proxy + encodeURIComponent(SHEET_URL);
+      } else {
+        proxyUrl = proxy + encodeURIComponent(SHEET_URL);
       }
-      console.log(`⚠️ Stĺpec "${Array.isArray(names) ? names[0] : names}" nenájdený`);
-      return -1;
-    };
-    
-    const companyIdx = getColIndex(['company', 'spoločnosť', 'firma', 'company name']);
-    const nameIdx = getColIndex(['name', 'meno', 'kontakt', 'osoba', 'contact name']);
-    const telIdx = getColIndex(['tel', 'telefón', 'phone', 'phone number']);
-    const dateIdx = getColIndex(['date', 'dátum', 'deň', 'call date']);
-    const timeIdx = getColIndex(['time', 'čas', 'hodina', 'call time']);
-    const noteIdx = getColIndex(['note', 'poznámka', 'popis', 'notes']);
-    const nextIdx = getColIndex(['next', 'ďalší', 'krok', 'next step']);
-    
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
-      if (values.length === 0 || values.every(v => !v)) continue; // preskočiť prázdne riadky
       
-      const company = companyIdx >= 0 ? values[companyIdx] : '';
-      const name = nameIdx >= 0 ? values[nameIdx] : '';
-      
-      if (!company && !name) continue; // preskočiť ak nie je spoločnosť ani meno
-      
-      data.push({
-        company: company.trim(),
-        name: name.trim(),
-        tel: (telIdx >= 0 ? values[telIdx] : '').trim(),
-        phoneDisplay: (telIdx >= 0 ? values[telIdx] : '').trim(),
-        date: (dateIdx >= 0 ? values[dateIdx] : '').trim(),
-        time: (timeIdx >= 0 ? values[timeIdx] : '').trim(),
-        note: (noteIdx >= 0 ? values[noteIdx] : '').trim(),
-        next: (nextIdx >= 0 ? values[nextIdx] : '').trim()
+      const response = await fetch(proxyUrl, { 
+        method: 'GET',
+        headers: { 'Accept': 'text/plain' }
       });
+      
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const csv = await response.text();
+      console.log(`✅ CSV vrátený (${csv.length} znakov)`);
+      
+      const lines = csv.trim().split('\n');
+      if (lines.length < 2) {
+        throw new Error('Sheet je prázdny');
+      }
+      
+      const headers = parseCSVLine(lines[0]);
+      console.log('📋 Headers:', headers);
+      
+      // Nájdi indexy stĺpcov (flexibilne mapovanie)
+      const getColIndex = (names) => {
+        for (const name of (Array.isArray(names) ? names : [names])) {
+          const idx = headers.findIndex(h => h.toLowerCase().trim().includes(name.toLowerCase()));
+          if (idx !== -1) {
+            console.log(`✓ Stĺpec "${name}" nájdený na pozícii ${idx}`);
+            return idx;
+          }
+        }
+        return -1;
+      };
+      
+      const companyIdx = getColIndex(['company', 'spoločnosť', 'firma']);
+      const nameIdx = getColIndex(['name', 'meno', 'kontakt']);
+      const telIdx = getColIndex(['tel', 'telefón', 'phone']);
+      const dateIdx = getColIndex(['date', 'dátum']);
+      const timeIdx = getColIndex(['time', 'čas']);
+      const noteIdx = getColIndex(['note', 'poznámka']);
+      const nextIdx = getColIndex(['next', 'ďalší', 'krok']);
+      
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length === 0 || values.every(v => !v)) continue;
+        
+        const company = companyIdx >= 0 ? values[companyIdx] : '';
+        const name = nameIdx >= 0 ? values[nameIdx] : '';
+        
+        if (!company && !name) continue;
+        
+        data.push({
+          company: company.trim(),
+          name: name.trim(),
+          tel: (telIdx >= 0 ? values[telIdx] : '').trim(),
+          phoneDisplay: (telIdx >= 0 ? values[telIdx] : '').trim(),
+          date: (dateIdx >= 0 ? values[dateIdx] : '').trim(),
+          time: (timeIdx >= 0 ? values[timeIdx] : '').trim(),
+          note: (noteIdx >= 0 ? values[noteIdx] : '').trim(),
+          next: (nextIdx >= 0 ? values[nextIdx] : '').trim()
+        });
+      }
+      
+      console.log(`✅ Úspešne načítané ${data.length} hovorov`);
+      return data;
+      
+    } catch (error) {
+      console.warn(`⚠️ Proxy ${proxyIndex + 1} zlyhala:`, error.message);
+      if (proxyIndex === CORS_PROXIES.length - 1) {
+        // Posledný proxy - vyhodíme chybu
+        console.error('❌ Všetky proxy zlyhali');
+        throw new Error('Nemôžem načítať dáta zo Sheetu - všetky proxy nefungujú');
+      }
+      // Skúšame ďalší proxy
     }
-    
-    console.log(`✅ Úspešne načítané ${data.length} hovorov z Sheetu`);
-    return data;
-  } catch (error) {
-    console.error('❌ Chyba pri načítavaní z Sheetu:', error);
-    throw error;
   }
 }
 
