@@ -2,403 +2,76 @@
 <html lang="sk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0d12">
-<meta name="description" content="Správa hovory - EnergyPartners">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Hovory">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23f5b942' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' text-anchor='middle' dominant-baseline='central' fill='%230a0d12' font-family='Georgia'>☎</text></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23f5b942' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='120' font-weight='bold' text-anchor='middle' dominant-baseline='central' fill='%230a0d12' font-family='Georgia'>☎</text></svg>">
-<title>Hovory · EnergyPartners</title>
+<title>Hovory</title>
 <style>
-  :root{
-    --bg: #0a0d12;
-    --bg-elevated: #12161e;
-    --card: #161b24;
-    --card-border: #232936;
-    --amber: #f5b942;
-    --amber-dim: #8a6a26;
-    --teal: #34d6ae;
-    --red: #ef5b5b;
-    --text: #eae7df;
-    --text-dim: #8b93a1;
-    --text-faint: #545b68;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
-  html,body{margin:0; padding:0; background:var(--bg); color:var(--text);}
-  body{
-    font-family: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif;
-    overflow-x:hidden;
-    min-height:100vh;
-  }
-  .app{
-    max-width:480px;
-    margin:0 auto;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    background:
-      radial-gradient(120% 60% at 15% -10%, rgba(245,185,66,0.08), transparent 60%),
-      var(--bg);
-  }
-
-  /* HEADER */
-  header{
-    padding: calc(18px + var(--safe-top)) 20px 14px;
-    position:sticky; top:0; z-index:20;
-    background: rgba(10,13,18,0.92);
-    backdrop-filter: blur(14px);
-    border-bottom:1px solid var(--card-border);
-  }
-  .header-top{
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;
-  }
-  .header-buttons{
-    display:flex; gap:8px;
-  }
-  .eyebrow{
-    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
-    color:var(--amber); font-weight:700; display:flex; align-items:center; gap:6px;
-  }
-  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--amber); box-shadow:0 0 0 0 rgba(245,185,66,.6); animation:pulse 2s infinite;}
-  @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(245,185,66,.55);}
-    70%{box-shadow:0 0 0 8px rgba(245,185,66,0);}
-    100%{box-shadow:0 0 0 0 rgba(245,185,66,0);}
-  }
-  .refresh-btn{
-    width:36px; height:36px; border-radius:50%;
-    background:var(--bg-elevated); border:1px solid var(--card-border);
-    color:var(--amber); cursor:pointer; display:flex; align-items:center; justify-content:center;
-    font-size:18px; transition: all .2s ease;
-  }
-  .refresh-btn:hover{
-    border-color:var(--amber); background:rgba(245,185,66,0.1);
-  }
-  .refresh-btn.spinning{
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin{
-    from{transform:rotate(0deg);}
-    to{transform:rotate(360deg);}
-  }
-  h1{
-    font-family: "Georgia", "Iowan Old Style", serif;
-    font-size:30px; line-height:1.05; margin:6px 0 2px;
-    font-weight:600; letter-spacing:-.01em;
-    text-transform:capitalize;
-  }
-  .datesub{color:var(--text-dim); font-size:14px; margin-bottom:14px;}
-  .stat-row{display:flex; gap:8px;}
-  .stat{
-    flex:1; background:var(--bg-elevated); border:1px solid var(--card-border);
-    border-radius:12px; padding:9px 10px;
-  }
-  .stat b{display:block; font-size:19px; font-variant-numeric: tabular-nums; color:var(--text);}
-  .stat span{font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
-  .stat.warn b{color:var(--red);}
-
-  /* TABS */
-  .tabs{
-    display:flex; gap:6px; padding:12px 20px 0;
-    position:sticky; top: 0; z-index:19;
-  }
-  .tabbar-wrap{
-    background: rgba(10,13,18,0.92); backdrop-filter: blur(14px);
-    border-bottom:1px solid var(--card-border);
-    position:sticky; top:0; z-index:19; padding-bottom:10px;
-  }
-  .tab{
-    flex:1; text-align:center; padding:9px 6px; border-radius:10px;
-    font-size:13px; font-weight:600; color:var(--text-dim);
-    background:var(--bg-elevated); border:1px solid var(--card-border);
-    cursor:pointer; user-select:none; transition: all .15s ease;
-    position:relative;
-  }
-  .tab.active{ color:#12161e; background:var(--amber); border-color:var(--amber);}
-  .tab .count{ font-size:10px; opacity:.8; margin-left:3px;}
-
-  .search-wrap{padding:10px 20px 0;}
-  .search{
-    width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--card-border);
-    background:var(--bg-elevated); color:var(--text); font-size:15px; outline:none;
-  }
-  .search::placeholder{color:var(--text-faint);}
-
-  /* LIST */
-  main{flex:1; padding: 10px 16px calc(30px + var(--safe-bottom));}
-  .group-label{
-    font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint);
-    padding:16px 6px 8px; font-weight:700;
-  }
-  .group-label.overdue{color:var(--red);}
-  .group-label.today{color:var(--amber);}
-
-  .card{
-    display:flex; align-items:center; gap:12px;
-    background:var(--card); border:1px solid var(--card-border);
-    border-radius:14px; padding:12px; margin-bottom:8px;
-    text-decoration:none; color:inherit;
-    transition: transform .08s ease, border-color .12s ease;
-    cursor:pointer;
-  }
-  .card:active{ transform: scale(0.985); border-color: var(--amber-dim); background:#1b2129;}
-
-  .time-chip{
-    min-width:52px; text-align:center; flex-shrink:0;
-  }
-  .time-chip b{display:block; font-size:15px; font-variant-numeric:tabular-nums; color:var(--amber);}
-  .time-chip span{display:block; font-size:9.5px; color:var(--text-faint); text-transform:uppercase;}
-
-  .card-body{flex:1; min-width:0;}
-  .card-company{font-size:14.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-name{font-size:12.5px; color:var(--text-dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-note{font-size:12px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;}
-  .card-next{
-    display:inline-block; margin-top:5px; font-size:10.5px; color:var(--teal);
-    background: rgba(52,214,174,0.1); border:1px solid rgba(52,214,174,0.25);
-    padding:2px 7px; border-radius:6px; font-weight:600;
-  }
-
-  .call-btn{
-    flex-shrink:0; width:40px; height:40px; border-radius:50%;
-    background: var(--amber); display:flex; align-items:center; justify-content:center;
-    text-decoration:none; color:#0a0d12;
-  }
-  .call-btn svg{width:18px; height:18px;}
-
-  .empty{
-    text-align:center; padding:50px 20px; color:var(--text-dim);
-  }
-  .empty .spark{font-size:34px; margin-bottom:10px;}
-  .empty b{display:block; color:var(--text); font-size:16px; margin-bottom:4px;}
-  .empty p{font-size:13px; margin:0;}
-
-  /* DETAIL VIEW */
-  .detail-overlay{
-    position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7);
-    z-index:100; opacity:0; pointer-events:none; transition:opacity .2s ease;
-  }
-  .detail-overlay.active{
-    opacity:1; pointer-events:auto;
-  }
-  .detail-panel{
-    position:fixed; bottom:0; left:0; right:0; max-width:480px;
-    margin:0 auto; background:var(--bg); border-radius:24px 24px 0 0;
-    border-top:1px solid var(--card-border); z-index:101;
-    max-height:90vh; display:flex; flex-direction:column;
-    transform:translateY(100%); transition:transform .3s ease;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-  }
-  .detail-panel.active{
-    transform:translateY(0);
-  }
-  .detail-header{
-    padding: 20px 20px 16px; border-bottom:1px solid var(--card-border);
-    display:flex; justify-content:space-between; align-items:center;
-  }
-  .detail-header h2{
-    margin:0; font-size:18px; font-weight:600; color:var(--text);
-  }
-  .detail-close{
-    width:32px; height:32px; border-radius:50%; background:var(--bg-elevated);
-    border:1px solid var(--card-border); color:var(--text); cursor:pointer;
-    display:flex; align-items:center; justify-content:center; font-size:20px;
-  }
-  .detail-close:active{
-    background:var(--card);
-  }
-  .detail-content{
-    flex:1; overflow-y:auto; padding:20px;
-  }
-  .detail-row{
-    margin-bottom:20px;
-  }
-  .detail-label{
-    font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
-    color:var(--text-faint); margin-bottom:6px; font-weight:700;
-  }
-  .detail-value{
-    font-size:15px; color:var(--text); line-height:1.5;
-    padding:12px; background:var(--card); border-radius:10px;
-    border:1px solid var(--card-border);
-  }
-  .detail-value.full-width{
-    min-height:60px;
-  }
-
-  .toast{
-    position:fixed; bottom:30px; left:20px; right:20px; max-width:440px;
-    background:var(--card); border:1px solid var(--card-border); border-radius:12px;
-    padding:14px 16px; color:var(--text); z-index:150; animation:slideUp .3s ease;
-    font-size:14px;
-  }
-  @keyframes slideUp{
-    from{transform:translateY(100px); opacity:0;}
-    to{transform:translateY(0); opacity:1;}
-  }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; background: #0a0d12; color: #eae7df; font-family: system-ui, sans-serif; }
+.app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+header { padding: 20px; background: rgba(10,13,18,0.92); border-bottom: 1px solid #232936; position: sticky; top: 0; z-index: 20; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #f5b942; font-weight: 700; }
+.btn-group { display: flex; gap: 8px; }
+.btn { width: 36px; height: 36px; border-radius: 50%; background: #12161e; border: 1px solid #232936; color: #f5b942; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.btn:hover { border-color: #f5b942; background: rgba(245,185,66,0.1); }
+.btn.spinning { animation: spin 0.8s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+h1 { font-family: "Georgia", serif; font-size: 30px; margin: 6px 0 2px; font-weight: 600; }
+.subtitle { color: #8b93a1; font-size: 14px; margin-bottom: 14px; }
+.stats { display: flex; gap: 8px; }
+.stat { flex: 1; background: #12161e; border: 1px solid #232936; border-radius: 12px; padding: 10px; text-align: center; }
+.stat-val { font-size: 19px; font-weight: bold; color: #f5b942; }
+.stat-label { font-size: 10px; color: #8b93a1; text-transform: uppercase; margin-top: 4px; }
+main { flex: 1; padding: 16px; overflow-y: auto; }
+.card { background: #161b24; border: 1px solid #232936; border-radius: 14px; padding: 12px; margin-bottom: 8px; display: flex; gap: 12px; }
+.card-left { flex-shrink: 0; width: 50px; }
+.card-time { font-weight: bold; color: #f5b942; font-size: 14px; }
+.card-body { flex: 1; min-width: 0; }
+.card-company { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-name { font-size: 12px; color: #8b93a1; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-note { font-size: 12px; color: #545b68; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.empty { text-align: center; padding: 50px 20px; color: #8b93a1; }
+.empty-icon { font-size: 34px; margin-bottom: 10px; }
+.empty-text { font-size: 16px; font-weight: 600; color: #eae7df; margin-bottom: 4px; }
+.toast { position: fixed; bottom: 30px; left: 20px; right: 20px; max-width: 440px; background: #161b24; border: 1px solid #232936; border-radius: 12px; padding: 14px 16px; color: #eae7df; z-index: 150; animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
     <div class="header-top">
-      <div class="eyebrow"><span class="dot"></span>Aktuálne hovory</div>
-      <div class="header-buttons">
-        <button class="refresh-btn" id="refreshBtn" title="Obnoviť dáta zo Sheetu">↻</button>
-        <button class="refresh-btn" id="exportBtn" title="Stiahnuť CSV súbor">⬇️</button>
+      <div class="eyebrow">◉ Aktuálne hovory</div>
+      <div class="btn-group">
+        <button class="btn" id="refreshBtn" title="Obnoviť dáta">↻</button>
+        <button class="btn" id="exportBtn" title="Exportovať">⬇️</button>
       </div>
     </div>
     <h1>Hovory</h1>
-    <div class="datesub" id="dateSub">Načítavam...</div>
-    <div class="stat-row">
+    <div class="subtitle">Načítavam...</div>
+    <div class="stats">
       <div class="stat">
-        <b id="todayCount">0</b>
-        <span>Dnes</span>
-      </div>
-      <div class="stat">
-        <b id="weekCount">0</b>
-        <span>Tento týždeň</span>
-      </div>
-      <div class="stat warn" id="overdueWidget" style="display:none;">
-        <b id="overdueCount">0</b>
-        <span>Meškajúce</span>
+        <div class="stat-val" id="countVal">0</div>
+        <div class="stat-label">Hovorov</div>
       </div>
     </div>
   </header>
 
-  <div class="tabbar-wrap">
-    <div class="tabs">
-      <div class="tab active" data-tab="today">Dnes <span class="count" id="todayTabCount">0</span></div>
-      <div class="tab" data-tab="overdue">V omeškaní <span class="count" id="overdueTabCount">0</span></div>
-      <div class="tab" data-tab="upcoming">Nadchádzajúce</div>
-      <div class="tab" data-tab="all">Všetky</div>
-    </div>
-  </div>
-
-  <div class="search-wrap" id="searchWrap" style="display:none;">
-    <input type="text" class="search" id="searchInput" placeholder="Hľadaj spoločnosť alebo osobu...">
-  </div>
-
   <main id="list"></main>
 </div>
 
-<div class="detail-overlay" id="detailOverlay"></div>
-<div class="detail-panel" id="detailPanel">
-  <div class="detail-header">
-    <h2 id="detailTitle">Detail</h2>
-    <div class="detail-close" id="detailClose">✕</div>
-  </div>
-  <div class="detail-content" id="detailContent"></div>
-</div>
-
 <script>
-let DATA = [];
-let currentTab = 'today';
-let searchTerm = '';
-let now = new Date();
-let todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T/pub?gid=356854980&single=true&output=csv';
 
-// 🔑 CSV URL z Google Sheets (bez CORS problémov)
-const SCRIPT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T/pub?gid=356854980&single=true&output=csv';
+let allData = [];
 
-// Načítanie dát z Google Apps Script (bez CORS proxy)
-async function loadDataFromSheet() {
-  try {
-    console.log('🔄 Fetchujem CSV z Google Apps Script...');
-    
-    const response = await fetch(SCRIPT_URL, {
-      method: 'GET',
-      headers: { 'Accept': 'text/csv' }
-    });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const csv = await response.text();
-    console.log(`✅ CSV vrátený (${csv.length} znakov)`);
-    
-    if (!csv || csv.includes('Error:')) {
-      throw new Error('Script vrátil chybu: ' + csv);
-    }
-    
-    const lines = csv.trim().split('\n');
-    if (lines.length < 2) {
-      throw new Error('Sheet je prázdny');
-    }
-    
-    const headers = parseCSVLine(lines[0]);
-    console.log('📋 Headers:', headers);
-    
-    // Nájdi indexy stĺpcov (flexibilné mapovanie)
-    const getColIndex = (names) => {
-      for (const name of (Array.isArray(names) ? names : [names])) {
-        const idx = headers.findIndex(h => h.toLowerCase().trim().includes(name.toLowerCase()));
-        if (idx !== -1) {
-          console.log(`✓ Stĺpec "${name}" nájdený na pozícii ${idx}`);
-          return idx;
-        }
-      }
-      return -1;
-    };
-    
-    const companyIdx = getColIndex(['názov firmy', 'company', 'spoločnosť', 'firma']);
-    const nameIdx = getColIndex(['meno', 'name', 'kontakt']);
-    const telIdx = getColIndex(['telefón', 'tel', 'phone']);
-    const dateIdx = getColIndex(['dátum', 'date']);
-    const timeIdx = getColIndex(['čas', 'time']);
-    const noteIdx = getColIndex(['poznámka', 'note']);
-    const nextIdx = getColIndex(['nasleduje', 'next', 'ďalší', 'krok']);
-    
-    const data = [];
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
-      if (values.length === 0 || values.every(v => !v)) continue;
-      
-      const company = (companyIdx >= 0 && values[companyIdx]) ? String(values[companyIdx]) : '';
-      const name = (nameIdx >= 0 && values[nameIdx]) ? String(values[nameIdx]) : '';
-      
-      if (!company.trim() && !name.trim()) continue;
-      
-      data.push({
-        company: company.trim(),
-        name: name.trim(),
-        tel: ((telIdx >= 0 && values[telIdx]) ? String(values[telIdx]) : '').trim(),
-        phoneDisplay: ((telIdx >= 0 && values[telIdx]) ? String(values[telIdx]) : '').trim(),
-        date: ((dateIdx >= 0 && values[dateIdx]) ? String(values[dateIdx]) : '').trim(),
-        time: ((timeIdx >= 0 && values[timeIdx]) ? String(values[timeIdx]) : '').trim(),
-        note: ((noteIdx >= 0 && values[noteIdx]) ? String(values[noteIdx]) : '').trim(),
-        next: ((nextIdx >= 0 && values[nextIdx]) ? String(values[nextIdx]) : '').trim()
-      });
-    }
-    
-    console.log(`✅ Úspešne načítané ${data.length} hovorov`);
-    
-    // Uloží do localStorage
-    localStorage.setItem('hovoryData', JSON.stringify(data));
-    localStorage.setItem('hovoryDataCSV', csv); // Uloží aj raw CSV
-    localStorage.setItem('hovoryDataLastUpdate', new Date().toISOString());
-    
-    return data;
-    
-  } catch (error) {
-    console.error('❌ Chyba pri fetchovaní:', error.message);
-    throw error;
-  }
-}
-
-// CSV parser
 function parseCSVLine(line) {
   const result = [];
   let current = '';
   let inQuotes = false;
-  
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-    
     if (char === '"') {
       if (inQuotes && line[i + 1] === '"') {
         current += '"';
@@ -407,322 +80,123 @@ function parseCSVLine(line) {
         inQuotes = !inQuotes;
       }
     } else if (char === ',' && !inQuotes) {
-      result.push(current);
+      result.push(current.trim());
       current = '';
     } else {
       current += char;
     }
   }
-  
-  result.push(current);
-  return result.map(v => v.trim());
+  result.push(current.trim());
+  return result;
 }
 
-function processData(rawData) {
-  return rawData.filter(item => item.date || item.time).map(item => {
-    const dateStr = item.date;
-    const timeStr = item.time;
-    let dateObj = new Date();
+async function loadData() {
+  try {
+    console.log('🔄 Načítavam CSV...');
+    const response = await fetch(CSV_URL);
+    const csv = await response.text();
+    const lines = csv.trim().split('\n');
+    const headers = parseCSVLine(lines[0]);
     
-    if (dateStr) {
-      const parts = dateStr.split(/[.\/-]/);
-      if (parts.length >= 3) {
-        const day = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const year = parseInt(parts[2]) || new Date().getFullYear();
-        dateObj = new Date(year, month, day);
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
+      const values = parseCSVLine(lines[i]);
+      const row = {};
+      headers.forEach((header, idx) => {
+        row[header] = values[idx] || '';
+      });
+      if (row['Názov firmy'] || row['Meno']) {
+        data.push(row);
       }
     }
     
-    let timeArr = [0, 0];
-    if (timeStr) {
-      const timeParts = timeStr.split(':');
-      timeArr = [parseInt(timeParts[0]) || 0, parseInt(timeParts[1]) || 0];
-    }
-    
-    dateObj.setHours(timeArr[0], timeArr[1]);
-    
-    return {
-      ...item,
-      dateObj,
-      display: `${dateObj.toLocaleDateString('sk-SK')} ${String(timeArr[0]).padStart(2, '0')}:${String(timeArr[1]).padStart(2, '0')}`
-    };
-  }).sort((a, b) => a.dateObj - b.dateObj);
+    console.log(`✅ Načítané ${data.length} hovorov`);
+    allData = data;
+    localStorage.setItem('hovoryData', JSON.stringify(data));
+    render();
+    showToast(`✅ Načítané ${data.length} hovorov`);
+  } catch (error) {
+    console.error('❌ Chyba:', error);
+    showToast('❌ Chyba: ' + error.message);
+  }
 }
 
 function render() {
   const list = document.getElementById('list');
-  list.innerHTML = '';
   
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const weekEnd = new Date(todayStart);
-  weekEnd.setDate(weekEnd.getDate() + 7);
-  
-  let filtered = DATA;
-  
-  if (searchTerm) {
-    const term = searchTerm.toLowerCase();
-    filtered = DATA.filter(item => 
-      item.company.toLowerCase().includes(term) ||
-      item.name.toLowerCase().includes(term)
-    );
-  } else {
-    if (currentTab === 'today') {
-      filtered = DATA.filter(item => {
-        const itemDate = new Date(item.dateObj.getFullYear(), item.dateObj.getMonth(), item.dateObj.getDate());
-        return itemDate.getTime() === todayStart.getTime();
-      });
-    } else if (currentTab === 'overdue') {
-      filtered = DATA.filter(item => item.dateObj < now);
-    } else if (currentTab === 'upcoming') {
-      filtered = DATA.filter(item => item.dateObj >= now && item.dateObj < weekEnd);
-    }
-  }
-  
-  // Štatistika
-  const todayCount = DATA.filter(item => {
-    const itemDate = new Date(item.dateObj.getFullYear(), item.dateObj.getMonth(), item.dateObj.getDate());
-    return itemDate.getTime() === todayStart.getTime();
-  }).length;
-  
-  const weekCount = DATA.filter(item => item.dateObj >= now && item.dateObj < weekEnd).length;
-  const overdueCount = DATA.filter(item => item.dateObj < now).length;
-  
-  document.getElementById('todayCount').textContent = todayCount;
-  document.getElementById('weekCount').textContent = weekCount;
-  document.getElementById('todayTabCount').textContent = todayCount;
-  
-  if (overdueCount > 0) {
-    document.getElementById('overdueCount').textContent = overdueCount;
-    document.getElementById('overdueWidget').style.display = 'block';
-    document.getElementById('overdueTabCount').textContent = overdueCount;
-  } else {
-    document.getElementById('overdueWidget').style.display = 'none';
-  }
-  
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="empty"><div class="spark">📭</div><b>Žiadne hovory</b><p>Žiadne hovory v tejto kategórii</p></div>';
-    document.getElementById('dateSub').textContent = 'Dnes: ' + new Date().toLocaleDateString('sk-SK');
+  if (allData.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Žiadne hovory</div></div>';
+    document.querySelector('.subtitle').textContent = 'Klikni na Refresh';
+    document.getElementById('countVal').textContent = '0';
     return;
   }
   
-  let lastDate = null;
-  filtered.forEach(item => {
-    const dateStr = item.dateObj.toLocaleDateString('sk-SK');
+  list.innerHTML = '';
+  allData.forEach(row => {
+    const company = row['Názov firmy'] || '–';
+    const name = row['Meno'] || '–';
+    const time = row['Čas'] || '';
+    const note = row['Poznámka'] || '';
+    const timeDisplay = time ? time.substring(0, 5) : '–';
     
-    if (dateStr !== lastDate) {
-      const isToday = dateStr === todayStart.toLocaleDateString('sk-SK');
-      const isOverdue = item.dateObj < now;
-      const label = document.createElement('div');
-      label.className = `group-label ${isOverdue ? 'overdue' : isToday ? 'today' : ''}`;
-      label.textContent = dateStr;
-      list.appendChild(label);
-      lastDate = dateStr;
-    }
-    
-    const time = String(item.dateObj.getHours()).padStart(2, '0') + ':' + String(item.dateObj.getMinutes()).padStart(2, '0');
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
-      <div class="time-chip">
-        <b>${time}</b>
-        <span>${item.dateObj.toLocaleDateString('sk-SK', {weekday:'short'})}</span>
-      </div>
+      <div class="card-left"><div class="card-time">${timeDisplay}</div></div>
       <div class="card-body">
-        <div class="card-company">${item.company || '–'}</div>
-        <div class="card-name">${item.name || '–'}</div>
-        ${item.note ? `<div class="card-note">${item.note}</div>` : ''}
-        ${item.next ? `<div class="card-next">→ ${item.next}</div>` : ''}
+        <div class="card-company">${company}</div>
+        <div class="card-name">${name}</div>
+        ${note ? `<div class="card-note">${note}</div>` : ''}
       </div>
-      ${item.tel ? `<a href="tel:${item.tel}" class="call-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}
     `;
-    
-    card.addEventListener('click', () => openDetail(item));
     list.appendChild(card);
   });
   
-  document.getElementById('dateSub').textContent = 'Dnes: ' + new Date().toLocaleDateString('sk-SK');
+  document.querySelector('.subtitle').textContent = `${allData.length} hovorov`;
+  document.getElementById('countVal').textContent = allData.length;
 }
 
-function openDetail(item) {
-  document.getElementById('detailTitle').textContent = item.company || item.name;
-  document.getElementById('detailContent').innerHTML = `
-    <div class="detail-row">
-      <div class="detail-label">Spoločnosť</div>
-      <div class="detail-value">${item.company || '–'}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Osoba</div>
-      <div class="detail-value">${item.name || '–'}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Telefón</div>
-      <div class="detail-value">${item.tel ? `<a href="tel:${item.tel}" style="color:var(--teal)">${item.tel}</a>` : '–'}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Dátum a čas</div>
-      <div class="detail-value">${item.display}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Poznámka</div>
-      <div class="detail-value full-width">${item.note || '–'}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Ďalší krok</div>
-      <div class="detail-value full-width">${item.next || '–'}</div>
-    </div>
-  `;
-  document.getElementById('detailOverlay').classList.add('active');
-  document.getElementById('detailPanel').classList.add('active');
-}
-
-function closeDetail() {
-  document.getElementById('detailOverlay').classList.remove('active');
-  document.getElementById('detailPanel').classList.remove('active');
-}
-
-// EXPORT CSV do súboru
-function exportCSV() {
-  const csv = localStorage.getItem('hovoryDataCSV');
-  if (!csv) {
-    showToast('❌ Žiadne dáta na export');
-    return;
-  }
-  
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', `hovory_${new Date().toISOString().split('T')[0]}.csv`);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  showToast('✅ CSV exportovaný');
-  console.log('✅ CSV exportovaný');
-}
-
-function showToast(message) {
+function showToast(msg) {
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.textContent = message;
+  toast.textContent = msg;
   document.body.appendChild(toast);
-  
   setTimeout(() => {
-    toast.style.animation = 'slideUp .3s ease reverse';
+    toast.style.animation = 'slideUp 0.3s ease reverse';
     setTimeout(() => toast.remove(), 300);
   }, 2500);
 }
 
-// Event listeners
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentTab = tab.dataset.tab;
-    document.getElementById('searchWrap').style.display = currentTab === 'all' ? 'block' : 'none';
-    render();
-  });
-});
-
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  searchTerm = e.target.value;
-  render();
-});
-
-document.getElementById('detailClose').addEventListener('click', closeDetail);
-
-document.getElementById('detailOverlay').addEventListener('click', (e) => {
-  if (e.target === document.getElementById('detailOverlay')) {
-    closeDetail();
-  }
-});
-
-document.getElementById('exportBtn').addEventListener('click', exportCSV);
-
-async function refreshData() {
+document.getElementById('refreshBtn').addEventListener('click', async () => {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
-  try {
-    console.log('🔄 Refresh: Pokúšam sa načítať data...');
-    const rawData = await loadDataFromSheet();
-    
-    if (rawData.length === 0) {
-      console.warn('⚠️ Žiadne dáta');
-      showToast('⚠️ Sheet je prázdny');
-      return;
-    }
-    
-    DATA = processData(rawData);
-    console.log('✅ Dáta spracované a vyrenderované');
-    render();
-    showToast(`✅ Načítané ${rawData.length} hovorov`);
-  } catch (error) {
-    console.error('❌ Chyba pri aktualizácii:', error.message);
-    showToast('❌ Chyba: ' + error.message);
-  } finally {
-    btn.classList.remove('spinning');
-  }
-}
+  await loadData();
+  btn.classList.remove('spinning');
+});
 
-document.getElementById('refreshBtn').addEventListener('click', refreshData);
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const csv = localStorage.getItem('hovoryData');
+  if (!csv) { showToast('❌ Žiadne dáta'); return; }
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `hovory_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ CSV exportovaný');
+});
 
-// Vytvorenie a registrácia Service Workera inline
-if ('serviceWorker' in navigator) {
-  const swCode = `
-    self.addEventListener('install', event => {
-      self.skipWaiting();
-    });
-    self.addEventListener('activate', event => {
-      event.waitUntil(clients.claim());
-    });
-    self.addEventListener('fetch', event => {
-      event.respondWith(
-        caches.match(event.request)
-          .then(response => response || fetch(event.request))
-          .catch(() => new Response('Offline'))
-      );
-    });
-  `;
-  
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  
-  navigator.serviceWorker.register(swUrl).catch(err => {
-    console.log('ServiceWorker registration optional: ', err);
-  });
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-  // Skúsi načítať uložené dáta z minula
+window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('hovoryData');
-  const lastUpdate = localStorage.getItem('hovoryDataLastUpdate');
-  
   if (saved) {
-    console.log('📦 Používam uložené dáta z localStorage');
     try {
-      DATA = processData(JSON.parse(saved));
+      allData = JSON.parse(saved);
       render();
-      
-      // Zobraz čas poslnej aktualizácie
-      if (lastUpdate) {
-        const date = new Date(lastUpdate);
-        console.log('Posledná aktualizácia: ' + date.toLocaleString('sk-SK'));
-      }
-      
-      // Stále pokús načítať nové dáta na pozadí
-      console.log('Pokúšam sa načítať nové dáta na pozadí...');
-      refreshData();
-      return;
-    } catch (error) {
-      console.warn('Nemôžem načítať uložené dáta:', error);
-    }
+    } catch (e) {}
   }
-  
-  // Ak nie sú uložené dáta, skúsi načítať zo Sheetu
-  await refreshData();
+  loadData();
 });
 </script>
 </body>
