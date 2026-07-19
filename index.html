@@ -345,13 +345,13 @@ async function loadDataFromSheet() {
       return -1;
     };
     
-    const companyIdx = getColIndex(['company', 'spoločnosť', 'firma']);
-    const nameIdx = getColIndex(['name', 'meno', 'kontakt']);
-    const telIdx = getColIndex(['tel', 'telefón', 'phone']);
-    const dateIdx = getColIndex(['date', 'dátum']);
-    const timeIdx = getColIndex(['time', 'čas']);
-    const noteIdx = getColIndex(['note', 'poznámka']);
-    const nextIdx = getColIndex(['next', 'ďalší', 'krok']);
+    const companyIdx = getColIndex(['názov firmy', 'company', 'spoločnosť', 'firma']);
+    const nameIdx = getColIndex(['meno', 'name', 'kontakt']);
+    const telIdx = getColIndex(['telefón', 'tel', 'phone']);
+    const dateIdx = getColIndex(['dátum', 'date']);
+    const timeIdx = getColIndex(['čas', 'time']);
+    const noteIdx = getColIndex(['poznámka', 'note']);
+    const nextIdx = getColIndex(['nasleduje', 'next', 'ďalší', 'krok']);
     
     const data = [];
     for (let i = 1; i < lines.length; i++) {
