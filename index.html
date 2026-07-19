@@ -300,9 +300,11 @@
 let DATA = [];
 let currentTab = 'today';
 let searchTerm = '';
+let now = new Date();
+let todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-// 🔑 TVOJA GOOGLE APPS SCRIPT URL - nebez problémov s CORS
-const SCRIPT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T/pub?gid=356854980&single=true&output=csv';const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+// 🔑 CSV URL z Google Sheets (bez CORS problémov)
+const SCRIPT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T/pub?gid=356854980&single=true&output=csv';
 
 // Načítanie dát z Google Apps Script (bez CORS proxy)
 async function loadDataFromSheet() {
