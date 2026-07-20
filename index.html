@@ -305,10 +305,10 @@
 <script>
 // Google Sheets API detaily
 const SHEET_ID = '2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T';
-const API_KEY = 'AIzaSyDRccaAkl4j_NCHTxw3LbJpI2j1IBpSAN8';
-const RANGE = 'A1:I1000';  // A-I: Firma, Meno, Tel, Tel2, STAV, Poznámka, Dátum, Čas, Nasleduje
+const GID = '0';  // gid z tabuľky (prvý list = 0)
 
-const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+// CSV export URL - priamy export bez API komplikácií
+const SHEETS_API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
 
 let DATA = [];
 let lastSync = null;
@@ -359,41 +359,37 @@ async function loadDataFromCSV() {
     const response = await fetch(SHEETS_API_URL);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
-    const json = await response.json();
-    const values = json.values;
+    const csv = await response.text();  // CSV text, nie JSON!
+    const lines = csv.trim().split('\n');
     
-    if (!values || values.length === 0) {
+    if (lines.length < 2) {
       throw new Error('Tabuľka je prázdna');
     }
     
     // Prvý riadok sú headery
-    const headers = values[0];
+    const headers = parseCSVLine(lines[0]);
     const rawData = [];
     
     // Parsuj zvyšné riadky
-    for (let i = 1; i < values.length; i++) {
-      const row = values[i];
+    for (let i = 1; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
       
-      // Skontroluj či je riadok prázdny (všetky bunky sú prázdne alebo whitespace)
-      if (!row || row.length === 0 || row.every(cell => !cell || !cell.toString().trim())) {
-        continue; // Preskočí prázdne riadky
-      }
-      
-      const data = {};
+      const values = parseCSVLine(lines[i]);
+      const row = {};
       headers.forEach((header, idx) => {
-        data[header] = row[idx] || '';
+        row[header] = values[idx] || '';
       });
       
       // Vyčisti všetky polia
       const cleanedData = {
-        company: cleanText(data['Názov firmy'] || ''),
-        name: cleanText(data['Meno'] || ''),
-        tel: cleanText(data['Telefón'] || ''),
-        phoneDisplay: cleanText(data['Telefón'] || ''),
-        time: cleanText(data['Čas'] || ''),
-        date: cleanText(data['Dátum'] || ''),
-        stav: cleanText(data['Stav'] || ''),  // STAV je v stĺpci E!
-        next: cleanText(data['Nasleduje'] || '')
+        company: cleanText(row['Názov firmy'] || ''),
+        name: cleanText(row['Meno'] || ''),
+        tel: cleanText(row['Telefón'] || ''),
+        phoneDisplay: cleanText(row['Telefón'] || ''),
+        time: cleanText(row['Čas'] || ''),
+        date: cleanText(row['Dátum'] || ''),
+        stav: cleanText(row['Stav'] || ''),  // STAV je v stĺpci E!
+        next: cleanText(row['Nasleduje'] || '')
       };
       
       // Skontroluj či má aspoň meno alebo firmu (po vyčistení)
@@ -415,7 +411,7 @@ async function loadDataFromCSV() {
       throw new Error('Žiadne platné dáta v tabuľke');
     }
   } catch (error) {
-    console.warn('❌ Chyba pri sťahovaní z API:', error.message);
+    console.warn('❌ Chyba pri sťahovaní z Google Sheets:', error.message);
     
     // Fallback: Načítať zo localStorage
     console.log('📚 Načítavam uložené dáta z mobilného úložiska...');
