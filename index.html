@@ -395,8 +395,20 @@ async function loadDataFromCSV() {
       throw new Error('Tabuľka je prázdna');
     }
     
-    // Prvý riadok sú headery
-    const headers = parseCSVLine(lines[0]);
+    // Riadok 1 je hlavička - preskočíme ju, mapujeme pevne podľa indexu stĺpca
+    // A=0 Názov firmy, B=1 Meno, C=2 Telefón, D=3 Telefón 2, E=4 Stav,
+    // F=5 Poznámka (zatiaľ sa nezobrazuje), G=6 Dátum, H=7 Čas, I=8 Nasleduje
+    const COL = {
+      company: 0,
+      name: 1,
+      tel: 2,
+      tel2: 3,
+      stav: 4,
+      note: 5,
+      date: 6,
+      time: 7,
+      next: 8
+    };
     const rawData = [];
     
     // Parsuj zvyšné riadky
@@ -404,21 +416,19 @@ async function loadDataFromCSV() {
       if (!lines[i].trim()) continue;
       
       const values = parseCSVLine(lines[i]);
-      const row = {};
-      headers.forEach((header, idx) => {
-        row[header] = values[idx] || '';
-      });
       
-      // Vyčisti všetky polia
+      // Vyčisti všetky polia - pevné mapovanie podľa stĺpca (index), nie podľa názvu hlavičky
       const cleanedData = {
-        company: cleanText(row['Názov firmy'] || ''),
-        name: cleanText(row['Meno'] || ''),
-        tel: cleanText(row['Telefón'] || ''),
-        phoneDisplay: cleanText(row['Telefón'] || ''),
-        time: cleanText(row['Čas'] || ''),
-        date: cleanText(row['Dátum'] || ''),
-        stav: cleanText(row['Stav'] || ''),  // STAV je v stĺpci E!
-        next: cleanText(row['Nasleduje'] || '')
+        company: cleanText(values[COL.company] || ''),
+        name: cleanText(values[COL.name] || ''),
+        tel: cleanText(values[COL.tel] || ''),
+        tel2: cleanText(values[COL.tel2] || ''),
+        phoneDisplay: cleanText(values[COL.tel] || ''),
+        stav: cleanText(values[COL.stav] || ''),
+        note: cleanText(values[COL.note] || ''),   // stĺpec F - zatiaľ sa nikde nezobrazuje
+        date: cleanText(values[COL.date] || ''),
+        time: cleanText(values[COL.time] || ''),
+        next: cleanText(values[COL.next] || '')
       };
       
       // Skontroluj či má aspoň meno alebo firmu (po vyčistení)
@@ -543,7 +553,7 @@ function renderCard(item){
   const dateLabel = item._date ? fmtDateShort(item._date) : '';
   const href = item.tel ? `tel:${item.tel}` : '#';
   
-  // Zobrazovanie: A(company), B(name), C(tel), G(next), H(note), I(stav)
+  // Zobrazovanie: A(company), B(name), C(tel), D(tel2), E(stav), G(date), H(time), I(next) — F(note) sa nezobrazuje
   return `
   <div class="card" data-company="${escapeHtml(item.company)}" data-name="${escapeHtml(item.name)}" data-stav="${escapeHtml(item.stav || '')}">
     <div class="time-chip"><b>${timeLabel}</b><span>${dateLabel}</span></div>
@@ -552,6 +562,7 @@ function renderCard(item){
       <div class="card-info">
         ${item.name ? `<div class="card-detail">👤 ${escapeHtml(item.name)}</div>` : ''}
         ${item.tel ? `<div class="card-detail">📞 ${escapeHtml(item.tel)}</div>` : ''}
+        ${item.tel2 ? `<div class="card-detail">📞 ${escapeHtml(item.tel2)}</div>` : ''}
       </div>
       ${item.note ? `<div class="card-note">${escapeHtml(item.note)}</div>` : ''}
       ${item.next ? `<div class="card-next">${escapeHtml(item.next)}</div>` : ''}
@@ -658,6 +669,10 @@ function openDetail(item){
       <div class="detail-label">Telefón</div>
       <div class="detail-value">${item.tel ? `<a href="tel:${item.tel}" style="color:var(--teal)">${escapeHtml(item.tel)}</a>` : '–'}</div>
     </div>
+    ${item.tel2 ? `<div class="detail-row">
+      <div class="detail-label">Telefón 2</div>
+      <div class="detail-value"><a href="tel:${item.tel2}" style="color:var(--teal)">${escapeHtml(item.tel2)}</a></div>
+    </div>` : ''}
     <div class="detail-row">
       <div class="detail-label">Dátum a čas</div>
       <div class="detail-value">${item.date || '–'} ${item.time || ''}</div>
