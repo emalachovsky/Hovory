@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <meta name="theme-color" content="#0a0d12">
-<meta name="description" content="Správa hovory - EnergyPartners">
+<meta name="description" content="Správa hovory - CRM EnergyPartners">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hovory">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23f5b942' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' text-anchor='middle' dominant-baseline='central' fill='%230a0d12' font-family='Georgia'>☎</text></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23f5b942' width='192' height='192' rx='45'/><text x='50%' y='50%' font-size='120' font-weight='bold' text-anchor='middle' dominant-baseline='central' fill='%230a0d12' font-family='Georgia'>☎</text></svg>">
-<title>Hovory · EnergyPartners</title>
+<title>Hovory · CRM EnergyPartners</title>
 <style>
   :root{
     --bg: #0a0d12;
@@ -46,6 +46,7 @@
       var(--bg);
   }
 
+  /* HEADER */
   header{
     padding: calc(18px + var(--safe-top)) 20px 14px;
     position:sticky; top:0; z-index:20;
@@ -97,20 +98,23 @@
   .stat b{display:block; font-size:19px; font-variant-numeric: tabular-nums; color:var(--text);}
   .stat span{font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
   .stat.warn b{color:var(--red);}
-  
+
+  /* TABS */
+  .tabs{
+    display:flex; gap:6px; padding:12px 20px 0;
+    position:sticky; top: 0; z-index:19;
+  }
   .tabbar-wrap{
     background: rgba(10,13,18,0.92); backdrop-filter: blur(14px);
     border-bottom:1px solid var(--card-border);
     position:sticky; top:0; z-index:19; padding-bottom:10px;
-  }
-  .tabs{
-    display:flex; gap:6px; padding:12px 20px 0;
   }
   .tab{
     flex:1; text-align:center; padding:9px 6px; border-radius:10px;
     font-size:13px; font-weight:600; color:var(--text-dim);
     background:var(--bg-elevated); border:1px solid var(--card-border);
     cursor:pointer; user-select:none; transition: all .15s ease;
+    position:relative;
   }
   .tab.active{ color:#12161e; background:var(--amber); border-color:var(--amber);}
   .tab .count{ font-size:10px; opacity:.8; margin-left:3px;}
@@ -122,74 +126,42 @@
   }
   .search::placeholder{color:var(--text-faint);}
 
-  main{flex:1; padding: 10px 16px 30px;}
+  /* LIST */
+  main{flex:1; padding: 10px 16px calc(30px + var(--safe-bottom));}
   .group-label{
     font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint);
     padding:16px 6px 8px; font-weight:700;
   }
-  .group-label.overdue{color:var(--red);}
-  .group-label.today{color:var(--amber);}
-
-  .table-wrapper{
-    overflow-x:auto; margin-bottom:20px;
-  }
-  .table{
-    width:100%; border-collapse:collapse;
-    background:var(--card); border:1px solid var(--card-border);
-  }
-  .table thead{
-    background:var(--bg-elevated); position:sticky; top:0;
-  }
-  .table th{
-    color:var(--text); padding:12px 8px;
-    font-size:11px; text-transform:uppercase; letter-spacing:.05em;
-    font-weight:700; text-align:left; border-bottom:1px solid var(--card-border);
-  }
-  .table td{
-    padding:10px 8px; border-bottom:1px solid var(--card-border);
-    font-size:12.5px; color:var(--text);
-  }
-  .table tr:hover{
-    background:rgba(245,185,66,0.05);
-  }
-  .table .text-dim{ color:var(--text-dim); }
-  .table .text-amber{ color:var(--amber); font-weight:600; }
-  .table .text-red{ color:var(--red); font-weight:600; }
-  .table .text-teal{ color:var(--teal); font-weight:600; }
+  .group-label.status{color:var(--amber);}
 
   .card{
     display:flex; align-items:center; gap:12px;
     background:var(--card); border:1px solid var(--card-border);
     border-radius:14px; padding:12px; margin-bottom:8px;
-    cursor:pointer;
+    text-decoration:none; color:inherit; cursor:pointer;
     transition: transform .08s ease, border-color .12s ease;
   }
-  .card:active{ transform: scale(0.985); border-color: var(--amber-dim);}
+  .card:active{ transform: scale(0.985); border-color: var(--amber-dim); background:#1b2129;}
 
-  .time-chip{
-    min-width:52px; text-align:center; flex-shrink:0;
+  .status-chip{
+    min-width:56px; text-align:center; flex-shrink:0;
   }
-  .time-chip b{display:block; font-size:15px; font-variant-numeric:tabular-nums; color:var(--amber);}
-  .time-chip span{display:block; font-size:9.5px; color:var(--text-faint); text-transform:uppercase;}
+  .status-chip b{display:block; font-size:14px; font-weight:700; color:var(--amber);}
+  .status-chip span{display:block; font-size:9.5px; color:var(--text-faint); text-transform:uppercase;}
 
   .card-body{flex:1; min-width:0;}
   .card-company{font-size:14.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-info{margin-top:4px;}
-  .card-detail{font-size:12px; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-name{font-size:12.5px; color:var(--text-dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-note{font-size:11px; color:var(--text-faint); margin-top:6px; max-height:2.4em; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; display:-webkit-box;}
-  .card-next{
-    display:inline-block; margin-top:6px; font-size:10.5px; color:var(--teal);
-    background: rgba(52,214,174,0.1); border:1px solid rgba(52,214,174,0.25);
-    padding:3px 8px; border-radius:6px; font-weight:600;
-  }
+  .card-note{font-size:12px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;}
 
   .call-btn{
     flex-shrink:0; width:40px; height:40px; border-radius:50%;
     background: var(--amber); display:flex; align-items:center; justify-content:center;
-    text-decoration:none; color:#0a0d12;
+    color:#0a0d12; cursor:pointer; transition:all .15s ease;
   }
-  .call-btn svg{width:18px; height:18px;}
+  .call-btn:active{
+    transform:scale(0.92);
+  }
 
   .empty{
     text-align:center; padding:50px 20px; color:var(--text-dim);
@@ -198,6 +170,15 @@
   .empty b{display:block; color:var(--text); font-size:16px; margin-bottom:4px;}
   .empty p{font-size:13px; margin:0;}
 
+  .loading{
+    text-align:center; padding:50px 20px; color:var(--text-dim);
+  }
+  .loading .spinner{
+    width:40px; height:40px; border:3px solid var(--card-border); border-top-color:var(--amber);
+    border-radius:50%; margin:0 auto 15px; animation:spin .8s linear infinite;
+  }
+
+  /* DETAIL VIEW */
   .detail-overlay{
     position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7);
     z-index:100; opacity:0; pointer-events:none; transition:opacity .2s ease;
@@ -244,46 +225,13 @@
   .detail-value{
     font-size:15px; color:var(--text); line-height:1.5;
     padding:12px; background:var(--card); border-radius:10px;
-    border:1px solid var(--card-border); word-wrap:break-word; white-space:pre-wrap;
+    border:1px solid var(--card-border); word-break:break-word;
   }
-
-  /* STAV Filter - Farebné labely ako v Google Sheets */
-  #stavCheckboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+  .detail-value a{
+    color:var(--teal); text-decoration:none;
   }
-
-  #stavCheckboxes label {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    user-select: none;
-    border: 2px solid transparent;
-    transition: opacity 0.2s;
-  }
-
-  #stavCheckboxes input {
-    margin-right: 6px;
-    cursor: pointer;
-  }
-
-  /* Farby pre jednotlivé stavy podľa Google Sheets */
-  #stavCheckboxes label:has(input[value="Osloveňý"]) { background: #FFD700; color: #333; }
-  #stavCheckboxes label:has(input[value="Pošle PDF"]) { background: #8B6F47; color: #fff; }
-  #stavCheckboxes label:has(input[value="Mailom"]) { background: #6BA3D4; color: #fff; }
-  #stavCheckboxes label:has(input[value="Analýza"]) { background: #90EE90; color: #333; }
-  #stavCheckboxes label:has(input[value="Klient"]) { background: #228B22; color: #fff; }
-  #stavCheckboxes label:has(input[value="Lost"]) { background: #FFB6C1; color: #333; }
-  #stavCheckboxes label:has(input[value="Odložený"]) { background: #808080; color: #fff; }
-  #stavCheckboxes label:has(input[value="Rozhoduje"]) { background: #663399; color: #fff; }
-
-  #stavCheckboxes input:not(:checked) + * {
-    opacity: 0.5;
+  .detail-value a:active{
+    opacity:0.8;
   }
 </style>
 </head>
@@ -291,37 +239,38 @@
 <div class="app">
   <header>
     <div class="header-top">
-      <div class="eyebrow"><span class="dot"></span> Dnes</div>
-      <button class="refresh-btn" id="refreshBtn" title="Obnoviť údaje">🔄</button>
+      <div class="eyebrow">
+        <span class="dot"></span>
+        CRM
+      </div>
+      <button class="refresh-btn" id="refreshBtn" title="Obnoviť">⟳</button>
     </div>
-    <h1 id="todayHeading">Loading</h1>
-    <div class="datesub" id="todaySub">loading date</div>
-    <div class="stat-row">
-      <div class="stat"><b id="statToday">0</b><span>Dnes</span></div>
-      <div class="stat warn"><b id="statOverdue">0</b><span>Meškajúce</span></div>
-      <div class="stat"><b id="statWeek">0</b><span>Tento týždeň</span></div>
-      <div class="stat"><b id="statAll">0</b><span>Celkem</span></div>
-    </div>
+    <h1>EnergyPartners</h1>
+    <div class="datesub" id="dateDisplay"></div>
   </header>
+
   <div class="tabbar-wrap">
     <div class="tabs">
-      <div class="tab active" data-tab="today">Dnes <span class="count" id="countToday">(0)</span></div>
-      <div class="tab" data-tab="upcoming">Nadchádzajúce</div>
-      <div class="tab" data-tab="all">Všetky</div>
-    </div>
-    <div style="padding: 8px 12px; border-top: 1px solid var(--card-border);">
-      <button id="stavFilterBtn" style="background: var(--bg-elevated); border: 1px solid var(--card-border); border-radius: 8px; padding: 6px 12px; color: var(--text-dim); cursor: pointer; width: 100%; font-size: 13px;">🔽 STAV</button>
-      <div id="stavFilterDropdown" style="display: none; margin-top: 8px; padding: 8px; background: var(--card); border-radius: 8px; border: 1px solid var(--card-border);">
-        <div id="stavCheckboxes"></div>
+      <div class="tab active" data-tab="all">
+        Všetky <span class="count" id="countAll">0</span>
       </div>
     </div>
-    <div class="search-wrap" id="searchWrap" style="display:none;">
-      <input type="text" id="searchInput" class="search" placeholder="Hľadaj podľa mena alebo spoločnosti...">
-    </div>
   </div>
-  <main id="list"></main>
+
+  <div class="search-wrap">
+    <input type="text" class="search" id="searchInput" placeholder="Hľadaj spoločnosť alebo osobu...">
+  </div>
+
+  <main>
+    <div id="list" class="loading">
+      <div class="spinner"></div>
+      <b>Načítavam dáta...</b>
+      <p>Pripájam sa na Google Sheets</p>
+    </div>
+  </main>
 </div>
 
+<!-- Detail Panel -->
 <div class="detail-overlay" id="detailOverlay"></div>
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
@@ -332,243 +281,63 @@
 </div>
 
 <script>
-// Google Sheets API detaily
 const SHEET_ID = '1yjOl0-yYSOI2lTCxflBfZWiohGkQmJkMVJLIlxGBUdU';
-const GID = '356854980';  // gid pre "CRM Zoznam" sheet
-
-// CSV export URL - priamy export bez API komplikácií
-const SHEETS_API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+const SHEET_GID = '356854980';
+const API_KEY = 'AIzaSyDRccaAkI4j_NCHTxw3LbJpl2j1IBpSAN8';
 
 let DATA = [];
-let lastSync = null;
+let searchTerm = '';
 
-// Pomocná funkcia na čistenie textu - odstránenie line breaks
-function cleanText(text) {
-  if (!text) return '';
-  // Odstránime všetky line breaks a nahradzujeme viacnásobné medzery jednou
-  return text.toString()
-    .replace(/\r\n/g, ' ')    // Windows line breaks
-    .replace(/\n/g, ' ')      // Unix line breaks
-    .replace(/\r/g, ' ')      // Old Mac line breaks
-    .replace(/  +/g, ' ')     // Viacnásobné medzery -> jedna
-    .trim();
-}
-
-function parseCSVLine(line) {
-  const result = [];
-  let current = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  result.push(current.trim());
-  return result;
-}
-
-async function loadDataFromCSV() {
-  const btn = document.getElementById('refreshBtn');
-  
+async function loadData(){
   try {
-    console.log('📡 Pokúšam stiahnuť dáta z Google Sheets...');
-    btn.title = 'Načítavam...';
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/A:I?key=${API_KEY}`;
+    const response = await fetch(url);
     
-    const response = await fetch(SHEETS_API_URL);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if(!response.ok) throw new Error('API Error: ' + response.statusText);
     
-    const csv = await response.text();  // CSV text, nie JSON!
-    const lines = csv.trim().split('\n');
+    const result = await response.json();
+    const rows = result.values || [];
     
-    if (lines.length < 2) {
-      throw new Error('Tabuľka je prázdna');
-    }
+    DATA = [];
     
-    // Riadok 1 je hlavička - preskočíme ju, mapujeme pevne podľa indexu stĺpca
-    // A=0 Názov firmy, B=1 Meno, C=2 Telefón, D=3 Telefón 2, E=4 Stav,
-    // F=5 Poznámka (zatiaľ sa nezobrazuje), G=6 Dátum, H=7 Čas, I=8 Nasleduje
-    const COL = {
-      company: 0,
-      name: 1,
-      tel: 2,
-      tel2: 3,
-      stav: 4,
-      note: 5,
-      date: 6,
-      time: 7,
-      next: 8
-    };
-    const rawData = [];
-    
-    // Parsuj zvyšné riadky
-    for (let i = 1; i < lines.length; i++) {
-      if (!lines[i].trim()) continue;
+    // Skip header row (index 0), process data rows
+    for(let i = 1; i < rows.length; i++){
+      const row = rows[i];
+      if(!row || row.length === 0) continue;
       
-      const values = parseCSVLine(lines[i]);
-      
-      // Vyčisti všetky polia - pevné mapovanie podľa stĺpca (index), nie podľa názvu hlavičky
-      const cleanedData = {
-        company: cleanText(values[COL.company] || ''),
-        name: cleanText(values[COL.name] || ''),
-        tel: cleanText(values[COL.tel] || ''),
-        tel2: cleanText(values[COL.tel2] || ''),
-        phoneDisplay: cleanText(values[COL.tel] || ''),
-        stav: cleanText(values[COL.stav] || ''),
-        note: cleanText(values[COL.note] || ''),   // stĺpec F - zatiaľ sa nikde nezobrazuje
-        date: cleanText(values[COL.date] || ''),
-        time: cleanText(values[COL.time] || ''),
-        next: cleanText(values[COL.next] || '')
+      // Map columns: A=0, B=1, C=2, D=3, E=4, G=6, H=7, I=8
+      const item = {
+        company: row[0] || '',      // A - Názov firmy
+        name: row[1] || '',         // B - Meno
+        tel: cleanPhone(row[2] || ''),     // C - Telefón
+        tel2: cleanPhone(row[3] || ''),    // D - Telefón 2
+        status: row[4] || '',       // E - Stav
+        note: row[6] || '',         // G - Poznámka
+        sort: row[7] || '',         // H - Zorad
+        next: row[8] || ''          // I - Nasleduje
       };
       
-      // Skontroluj či má aspoň meno alebo firmu (po vyčistení)
-      if (cleanedData.company || cleanedData.name) {
-        rawData.push(cleanedData);
+      if(item.company){
+        DATA.push(item);
       }
     }
     
-    if (rawData.length > 0) {
-      // Uložiť do localStorage
-      localStorage.setItem('hovory_data', JSON.stringify(rawData));
-      lastSync = new Date().toLocaleTimeString('sk-SK');
-      localStorage.setItem('hovory_lastsync', lastSync);
-      
-      console.log(`✅ Úspešne stiahnuté ${rawData.length} kontaktov z Google Sheets. Uložené lokálne.`);
-      btn.title = `📱 Posledná synchronizácia: ${lastSync}`;
-      return rawData;
-    } else {
-      throw new Error('Žiadne platné dáta v tabuľke');
-    }
-  } catch (error) {
-    console.warn('❌ Chyba pri sťahovaní z Google Sheets:', error.message);
+    console.log('Loaded', DATA.length, 'records from Google Sheets');
+    render();
     
-    // Fallback: Načítať zo localStorage
-    console.log('📚 Načítavam uložené dáta z mobilného úložiska...');
-    const stored = localStorage.getItem('hovory_data');
-    lastSync = localStorage.getItem('hovory_lastsync');
-    
-    if (stored) {
-      try {
-        const data = JSON.parse(stored);
-        console.log(`✅ Načítané ${data.length} kontaktov z lokálneho úložiska.`);
-        if (lastSync) {
-          btn.title = `⚠️ Offline režim. Posledná sync: ${lastSync}`;
-        }
-        return data;
-      } catch (e) {
-        console.error('Chyba pri parsovaní uložených dát:', e);
-        return [];
-      }
-    } else {
-      console.error('❌ Žiadne uložené dáta a internet nie je dostupný.');
-      btn.title = '❌ Žiadne dáta';
-      return [];
-    }
+  } catch(error){
+    console.error('Error loading data:', error);
+    document.getElementById('list').innerHTML = emptyState(
+      'Chyba pri načítaní',
+      'Nie je možné sa pripojiť k Google Sheets. Skontroluj API kľúč a ID tabuľky.\n\nChyba: ' + error.message
+    );
   }
 }
 
-function parseSkDate(s){
-  if(!s) return null;
-  s = s.trim();
-  
-  // Formát: 19.7.2026
-  let m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-  if(m) return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
-  
-  // Formát: Sun Jul 19 2026 (alebo iný JS Date format)
-  const d = new Date(s);
-  if(!isNaN(d.getTime())) return d;
-  
-  // ISO formát: 2026-07-19
-  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if(m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
-  
-  return null;
-}
-function parseTimeMinutes(t){
-  if(!t) return 9999;
-  const m = t.trim().match(/^(\d{1,2}):(\d{2})$/);
-  if(!m) return 9999;
-  return parseInt(m[1])*60 + parseInt(m[2]);
-}
-
-const now = new Date();
-const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-function daysBetween(a,b){ return Math.round((b-a)/86400000); }
-
-const WEEKDAYS_SK = ["Nedeľa","Pondelok","Utorok","Streda","Štvrtok","Piatok","Sobota"];
-const MONTHS_SK = ["januára","februára","marca","apríla","mája","júna","júla","augusta","septembra","októbra","novembra","decembra"];
-
-function updateStats(){
-  const countToday = DATA.filter(d=>d._bucket==='today').length;
-  const countOverdue = DATA.filter(d=>d._bucket==='overdue').length;
-  const countWeek = DATA.filter(d=>d._bucket==='week' || d._bucket==='today').length;
-  document.getElementById('statToday').textContent = countToday;
-  document.getElementById('statOverdue').textContent = countOverdue;
-  document.getElementById('statWeek').textContent = countWeek;
-  document.getElementById('statAll').textContent = DATA.length;
-  document.getElementById('countToday').textContent = `(${countToday})`;
-  
-  document.getElementById('todayHeading').textContent = WEEKDAYS_SK[todayMid.getDay()];
-  document.getElementById('todaySub').textContent = `${todayMid.getDate()}. ${MONTHS_SK[todayMid.getMonth()]} ${todayMid.getFullYear()}`;
-}
-
-function classifyData(){
-  DATA = DATA.map(d => ({...d, _date: parseSkDate(d.date), _timeMin: parseTimeMinutes(d.time)}));
-  DATA.forEach(d => {
-    if(!d._date){ d._bucket = 'nodate'; return; }
-    const diff = daysBetween(todayMid, d._date);
-    if(diff < 0) d._bucket = 'overdue';
-    else if(diff === 0) d._bucket = 'today';
-    else if(diff <= 7) d._bucket = 'week';
-    else d._bucket = 'later';
-  });
-}
-
-const callIcon = `<svg viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8c1.4 2.8 3.7 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.2 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20.7c0 .6-.4 1-1 1C10.6 21.7 2.3 13.4 2.3 3.7c0-.6.4-1 1-1H7c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.2 1.1L6.6 10.8z" fill="#12161e"/></svg>`;
-
-function fmtDateShort(d){
-  if(!d) return '';
-  return `${d.getDate()}.${d.getMonth()+1}.`;
-}
-
-function fmtDateFull(d){
-  if(!d) return 'bez dátumu';
-  return `${d.getDate()}. ${MONTHS_SK[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-function renderCard(item){
-  const timeLabel = item.time ? item.time : '–';
-  const dateLabel = item._date ? fmtDateShort(item._date) : '';
-  const href = item.tel ? `tel:${item.tel}` : '#';
-  
-  // Zobrazovanie: A(company), B(name), C(tel), D(tel2), E(stav), G(date), H(time), I(next) — F(note) sa nezobrazuje
-  return `
-  <div class="card" data-company="${escapeHtml(item.company)}" data-name="${escapeHtml(item.name)}" data-stav="${escapeHtml(item.stav || '')}">
-    <div class="time-chip"><b>${timeLabel}</b><span>${dateLabel}</span></div>
-    <div class="card-body">
-      <div class="card-company">${escapeHtml(item.company || item.name || 'Bez názvu')}</div>
-      <div class="card-info">
-        ${item.name ? `<div class="card-detail">👤 ${escapeHtml(item.name)}</div>` : ''}
-        ${item.tel ? `<div class="card-detail">📞 ${escapeHtml(item.tel)}</div>` : ''}
-        ${item.tel2 ? `<div class="card-detail">📞 ${escapeHtml(item.tel2)}</div>` : ''}
-      </div>
-      ${item.note ? `<div class="card-note">${escapeHtml(item.note)}</div>` : ''}
-      ${item.next ? `<div class="card-next">${escapeHtml(item.next)}</div>` : ''}
-    </div>
-    <a href="${href}" class="call-btn" title="Zavolaj">${callIcon}</a>
-  </div>`;
+function cleanPhone(phone){
+  if(!phone) return '';
+  // Remove spaces and special chars, keep only numbers and +
+  return phone.replace(/[^\d+]/g, '');
 }
 
 function escapeHtml(s){
@@ -579,113 +348,138 @@ function emptyState(msg, sub){
   return `<div class="empty"><div class="spark">⚡</div><b>${msg}</b><p>${sub}</p></div>`;
 }
 
-let currentTab = 'today';
-let searchTerm = '';
-let selectedStavy = new Set();  // Set vybraných stavov
+function renderCard(item, idx){
+  const phoneDisplay = item.tel || item.tel2 || '';
+  const callPhone = item.tel || item.tel2 || '';
+  
+  return `
+    <div class="card" data-id="${idx}">
+      <div class="status-chip">
+        <b>${escapeHtml(item.status || '-')}</b>
+        <span>Stav</span>
+      </div>
+      <div class="card-body">
+        <div class="card-company">${escapeHtml(item.company)}</div>
+        ${item.name ? `<div class="card-name">${escapeHtml(item.name)}</div>` : ''}
+        ${item.note ? `<div class="card-note">${escapeHtml(item.note)}</div>` : ''}
+      </div>
+      ${callPhone ? `<a class="call-btn" href="tel:${callPhone}" title="Zavolať">☎</a>` : ''}
+    </div>
+  `;
+}
 
 function render(){
   const list = document.getElementById('list');
-  let html = '';
-
-  // Filter podľa stavov
-  const filterByStav = (items) => {
-    if(selectedStavy.size === 0) return items; // Ak žiadny stav vybraný, všetky
-    return items.filter(d => selectedStavy.has(d.stav));
-  };
-
-  if(currentTab === 'today'){
-    let items = DATA.filter(d=>d._bucket==='today').sort((a,b)=>a._timeMin-b._timeMin);
-    items = filterByStav(items);
-    if(items.length===0){
-      const next = DATA.filter(d=>d._date && d._date > todayMid).sort((a,b)=>a._date-b._date)[0];
-      html = emptyState('Na dnes nemáš naplánované žiadne hovory.', next ? `Najbližší hovor: ${next.company} — ${fmtDateShort(next._date)} o ${next.time||''}` : 'Skontroluj záložku Všetky.');
-    } else {
-      html += items.map(item => renderCard(item)).join('');
-    }
-  }
-
-  if(currentTab === 'upcoming'){
-    const overdue = filterByStav(DATA.filter(d=>d._bucket==='overdue')).sort((a,b)=>a._date-b._date);
-    const today = filterByStav(DATA.filter(d=>d._bucket==='today')).sort((a,b)=>a._timeMin-b._timeMin);
-    const week = filterByStav(DATA.filter(d=>d._bucket==='week')).sort((a,b)=>a._date-b._date || a._timeMin-b._timeMin);
-    const later = filterByStav(DATA.filter(d=>d._bucket==='later')).sort((a,b)=>a._date-b._date || a._timeMin-b._timeMin);
-    if(overdue.length){
-      html += `<div class="group-label overdue">Meškajúce (${overdue.length})</div>` + overdue.map(item => renderCard(item)).join('');
-    }
-    if(today.length){
-      html += `<div class="group-label today">Dnes</div>` + today.map(item => renderCard(item)).join('');
-    }
-    if(week.length){
-      html += `<div class="group-label">Tento týždeň</div>` + week.map(item => renderCard(item)).join('');
-    }
-    if(later.length){
-      html += `<div class="group-label">Neskôr</div>` + later.map(item => renderCard(item)).join('');
-    }
-    if(!html) html = emptyState('Žiadne nadchádzajúce hovory.', 'Skús záložku Všetky.');
-  }
-
-  if(currentTab === 'all'){
-    let items = filterByStav(DATA.slice()).sort((a,b)=>{
-      const ad = a._date ? a._date.getTime() : Infinity;
-      const bd = b._date ? b._date.getTime() : Infinity;
-      return ad - bd || a._timeMin - b._timeMin;
-    });
-    if(searchTerm){
-      const term = searchTerm.toLowerCase();
-      items = items.filter(d => (d.company + ' ' + d.name).toLowerCase().includes(term));
-    }
-    if(items.length===0){
-      html = emptyState('Žiadne hovory.', 'Skús inú vyhľadávku.');
-    } else {
-      html += items.map(item => renderCard(item)).join('');
-    }
-  }
-
-  list.innerHTML = html;
+  let items = DATA.slice();
   
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', e => {
-      if(e.target.closest('.call-btn')) return;
-      const company = card.dataset.company;
-      const name = card.dataset.name;
-      const item = DATA.find(d => d.company === company && d.name === name);
-      if(item) openDetail(item);
+  if(searchTerm){
+    const t = searchTerm.toLowerCase();
+    items = items.filter(d => 
+      (d.company||'').toLowerCase().includes(t) || 
+      (d.name||'').toLowerCase().includes(t)
+    );
+  }
+  
+  if(items.length === 0){
+    list.innerHTML = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
+  } else {
+    list.innerHTML = items.map((item, idx) => renderCard(item, idx)).join('');
+    
+    document.querySelectorAll('.card').forEach((card, idx) => {
+      card.addEventListener('click', () => {
+        const item = DATA[parseInt(card.dataset.id)];
+        if(item) showDetail(item);
+      });
     });
-  });
+  }
+  
+  // Update count
+  document.getElementById('countAll').textContent = DATA.length;
 }
 
-function openDetail(item){
-  document.getElementById('detailTitle').textContent = item.company || item.name;
-  document.getElementById('detailContent').innerHTML = `
-    <div class="detail-row">
-      <div class="detail-label">Spoločnosť</div>
-      <div class="detail-value">${escapeHtml(item.company || '–')}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Osoba</div>
-      <div class="detail-value">${escapeHtml(item.name || '–')}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Telefón</div>
-      <div class="detail-value">${item.tel ? `<a href="tel:${item.tel}" style="color:var(--teal)">${escapeHtml(item.tel)}</a>` : '–'}</div>
-    </div>
-    ${item.tel2 ? `<div class="detail-row">
-      <div class="detail-label">Telefón 2</div>
-      <div class="detail-value"><a href="tel:${item.tel2}" style="color:var(--teal)">${escapeHtml(item.tel2)}</a></div>
-    </div>` : ''}
-    <div class="detail-row">
-      <div class="detail-label">Dátum a čas</div>
-      <div class="detail-value">${item.date || '–'} ${item.time || ''}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">STAV</div>
-      <div class="detail-value">${escapeHtml(item.stav || '–')}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Ďalší krok</div>
-      <div class="detail-value">${escapeHtml(item.next || '–')}</div>
-    </div>
-  `;
+function showDetail(item){
+  const title = item.company || item.name || 'Detail';
+  const detailTitle = document.getElementById('detailTitle');
+  const detailContent = document.getElementById('detailContent');
+  
+  detailTitle.textContent = escapeHtml(title);
+  
+  let contentHtml = '';
+  
+  if(item.company){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Spoločnosť</div>
+        <div class="detail-value">${escapeHtml(item.company)}</div>
+      </div>
+    `;
+  }
+  
+  if(item.name){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Kontaktná osoba</div>
+        <div class="detail-value">${escapeHtml(item.name)}</div>
+      </div>
+    `;
+  }
+  
+  if(item.tel){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Telefón</div>
+        <div class="detail-value"><a href="tel:${item.tel}">${escapeHtml(item.tel)}</a></div>
+      </div>
+    `;
+  }
+  
+  if(item.tel2){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Telefón 2</div>
+        <div class="detail-value"><a href="tel:${item.tel2}">${escapeHtml(item.tel2)}</a></div>
+      </div>
+    `;
+  }
+  
+  if(item.status){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Stav</div>
+        <div class="detail-value">${escapeHtml(item.status)}</div>
+      </div>
+    `;
+  }
+  
+  if(item.note){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Poznámka</div>
+        <div class="detail-value">${escapeHtml(item.note)}</div>
+      </div>
+    `;
+  }
+  
+  if(item.sort){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Zaradenie</div>
+        <div class="detail-value">${escapeHtml(item.sort)}</div>
+      </div>
+    `;
+  }
+  
+  if(item.next){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Ďalší krok</div>
+        <div class="detail-value">${escapeHtml(item.next)}</div>
+      </div>
+    `;
+  }
+  
+  detailContent.innerHTML = contentHtml;
+  
   document.getElementById('detailOverlay').classList.add('active');
   document.getElementById('detailPanel').classList.add('active');
 }
@@ -695,110 +489,50 @@ function closeDetail(){
   document.getElementById('detailPanel').classList.remove('active');
 }
 
+// Event listeners
 document.getElementById('detailClose').addEventListener('click', closeDetail);
-document.getElementById('detailOverlay').addEventListener('click', e => {
-  if(e.target === document.getElementById('detailOverlay')) closeDetail();
+
+document.getElementById('detailOverlay').addEventListener('click', (e) => {
+  if(e.target === document.getElementById('detailOverlay')){
+    closeDetail();
+  }
 });
 
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentTab = tab.dataset.tab;
-    document.getElementById('searchWrap').style.display = currentTab === 'all' ? 'block' : 'none';
-    render();
-  });
-});
-
-// STAV Filter
-function updateStavCheckboxes(){
-  // Získaj všetky unikátne stavy z dát
-  const stavySet = new Set(DATA.map(d => d.stav).filter(s => s));
-  const stavy = Array.from(stavySet).sort();
-  
-  const checkboxesDiv = document.getElementById('stavCheckboxes');
-  checkboxesDiv.innerHTML = stavy.map(stav => `
-    <label>
-      <input type="checkbox" value="${escapeHtml(stav)}" ${selectedStavy.has(stav) ? 'checked' : ''}>
-      ${escapeHtml(stav) || '(bez stavu)'}
-    </label>
-  `).join('');
-  
-  // Pridaj event handlers
-  checkboxesDiv.querySelectorAll('input').forEach(checkbox => {
-    checkbox.addEventListener('change', (e) => {
-      if(e.target.checked){
-        selectedStavy.add(e.target.value);
-      } else {
-        selectedStavy.delete(e.target.value);
-      }
-      render();
-    });
-  });
-}
-
-// Toggle dropdown
-if(document.getElementById('stavFilterBtn')){
-  document.getElementById('stavFilterBtn').addEventListener('click', () => {
-    const dropdown = document.getElementById('stavFilterDropdown');
-    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-  });
-}
-
-document.getElementById('searchInput').addEventListener('input', e => {
+document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTerm = e.target.value;
   render();
 });
 
-document.getElementById('refreshBtn').addEventListener('click', async () => {
+document.getElementById('refreshBtn').addEventListener('click', () => {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
-  
-  try {
-    const rawData = await loadDataFromCSV();
-    DATA = rawData;
-    if (DATA.length > 0) {
-      classifyData();
-      updateStats();
-      updateStavCheckboxes();
-      render();
-    }
-  } catch (error) {
-    console.error('Chyba pri refresh:', error);
-  }
-  
-  btn.classList.remove('spinning');
+  loadData();
+  setTimeout(() => {
+    btn.classList.remove('spinning');
+  }, 1000);
 });
 
-async function initialize() {
-  // Obnoviť stav online/offline
-  lastSync = localStorage.getItem('hovory_lastsync');
-  const btn = document.getElementById('refreshBtn');
-  
-  if (lastSync) {
-    btn.title = `📱 Posledná synchronizácia: ${lastSync}`;
-  }
-  
-  const rawData = await loadDataFromCSV();
-  DATA = rawData;
-  if (DATA.length > 0) {
-    classifyData();
-    updateStats();
-    updateStavCheckboxes();
-    render();
-  } else {
-    // Zobraz prázdny stav ak nemáme dáta
-    document.getElementById('list').innerHTML = emptyState(
-      'Žiadne dáta k dispozícii.',
-      'Stlačte 🔄 na stiahnutie dát z internetu.'
-    );
-  }
+// Update date display
+function updateDate(){
+  const now = new Date();
+  const days = ['Nedeľa','Pondelok','Utorok','Streda','Štvrtok','Piatok','Sobota'];
+  const months = ['Jan','Feb','Mar','Apr','Máj','Jún','Jul','Aug','Sep','Okt','Nov','Dec'];
+  const dateStr = `${days[now.getDay()]} ${now.getDate()}. ${months[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('dateDisplay').textContent = dateStr;
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initialize);
-} else {
-  initialize();
+// Initialize
+updateDate();
+loadData();
+
+// Refresh data every 5 minutes
+setInterval(loadData, 5 * 60 * 1000);
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(err => {
+    console.log('ServiceWorker registration failed (optional): ', err);
+  });
 }
 </script>
 </body>
