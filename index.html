@@ -85,18 +85,18 @@
   }
   h1{
     font-family: "Georgia", "Iowan Old Style", serif;
-    font-size:42px; line-height:1.05; margin:6px 0 2px;
+    font-size:32px; line-height:1.05; margin:6px 0 2px;
     font-weight:600; letter-spacing:-.01em;
     text-transform:capitalize;
   }
-  .datesub{color:var(--text-dim); font-size:16px; margin-bottom:14px;}
-  .stat-row{display:flex; gap:8px;}
+  .datesub{color:var(--text-dim); font-size:15px; margin-bottom:12px;}
+  .stat-row{display:flex; gap:6px;}
   .stat{
     flex:1; background:var(--bg-elevated); border:1px solid var(--card-border);
-    border-radius:12px; padding:12px 10px;
+    border-radius:10px; padding:10px 8px;
   }
-  .stat b{display:block; font-size:28px; font-variant-numeric: tabular-nums; color:var(--text);}
-  .stat span{font-size:11.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+  .stat b{display:block; font-size:22px; font-variant-numeric: tabular-nums; color:var(--text);}
+  .stat span{font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
   .stat.warn b{color:var(--red);}
 
   /* TABS */
@@ -152,7 +152,7 @@
   .status-chip span{display:block; font-size:11px; color:var(--text-faint); text-transform:uppercase;}
 
   .card-body{flex:1; min-width:0;}
-  .card-company{font-size:16px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-company{font-size:18px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-name{font-size:14px; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-note{font-size:13px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
 
@@ -222,11 +222,11 @@
     margin-bottom:20px;
   }
   .detail-label{
-    font-size:12.5px; text-transform:uppercase; letter-spacing:.08em;
+    font-size:13px; text-transform:uppercase; letter-spacing:.08em;
     color:var(--text-faint); margin-bottom:8px; font-weight:700;
   }
   .detail-value{
-    font-size:16px; color:var(--text); line-height:1.6;
+    font-size:18px; color:var(--text); line-height:1.6;
     padding:14px; background:var(--card); border-radius:10px;
     border:1px solid var(--card-border); word-break:break-word;
   }
@@ -281,7 +281,7 @@
     <div class="tabs">
       <div class="tab active" data-tab="today">Dnes</div>
       <div class="tab" data-tab="week">Týždeň</div>
-      <div class="tab" data-tab="upcoming">Nadchádzajúce</div>
+      <div class="tab" data-tab="overdue">Zmeškané</div>
       <div class="tab" data-tab="all">Všetky</div>
     </div>
   </div>
@@ -434,8 +434,10 @@ function renderCard(item, idx){
       <div class="card-body">
         <div class="card-company">${escapeHtml(item.company)}</div>
         ${item.name ? `<div class="card-name">${escapeHtml(item.name)}</div>` : ''}
-        ${item.status ? `<div class="card-note">${escapeHtml(item.status)}</div>` : ''}
-        ${item.next ? `<div style="display:inline-block; margin-top:6px; font-size:12px; color:var(--teal); background:rgba(52,214,174,0.1); border:1px solid rgba(52,214,174,0.25); padding:3px 8px; border-radius:6px; font-weight:600;">${escapeHtml(item.next)}</div>` : ''}
+        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+          ${item.status ? `<div style="display:inline-block; font-size:11px; color:#0a0d12; background:var(--teal); border:1px solid var(--teal); padding:4px 10px; border-radius:6px; font-weight:600;">${escapeHtml(item.status)}</div>` : ''}
+          ${item.next ? `<div style="display:inline-block; font-size:11px; color:var(--text); background:var(--card-border); border:1px solid var(--card-border); padding:4px 10px; border-radius:6px; font-weight:500;">${escapeHtml(item.next)}</div>` : ''}
+        </div>
       </div>
       ${callPhone ? `<a class="call-btn" href="tel:${callPhone}" title="Zavolať">☎</a>` : ''}
     </div>
@@ -463,7 +465,7 @@ function render(){
   if(currentTab === 'today'){
     const todayItems = items.filter(d => d._bucket === 'today').sort((a,b) => (a.time||'').localeCompare(b.time||''));
     if(todayItems.length === 0){
-      html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Nadchádzajúce.');
+      html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Zmeškané.');
     } else {
       html = todayItems.map((item, idx) => renderCard(item, idx + 1000)).join('');
     }
@@ -474,25 +476,25 @@ function render(){
     } else {
       html = weekItems.map((item, idx) => renderCard(item, idx + 2000)).join('');
     }
-  } else if(currentTab === 'upcoming'){
-    const overdue = items.filter(d => d._bucket === 'overdue').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
-    const today = items.filter(d => d._bucket === 'today').sort((a,b) => (a.time||'').localeCompare(b.time||''));
-    const week = items.filter(d => d._bucket === 'week').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0) || (a.time||'').localeCompare(b.time||''));
-    const later = items.filter(d => d._bucket === 'later').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
+  } else if(currentTab === 'overdue'){
+    const overdueItems = items.filter(d => d._bucket === 'overdue').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
+    const overdueToday = items.filter(d => {
+      if(d._bucket !== 'today') return false;
+      const now = new Date();
+      const currentTime = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+      return (d.time || '') > currentTime;
+    }).sort((a,b) => (a.time||'').localeCompare(b.time||''));
     
-    if(overdue.length){
-      html += `<div class="group-label overdue">ZMEŠKANÉ (${overdue.length})</div>` + overdue.map((item, idx) => renderCard(item, idx + 3000)).join('');
+    let allOverdue = [...overdueItems];
+    if(overdueToday.length){
+      allOverdue = [...overdueToday, ...overdueItems];
     }
-    if(today.length){
-      html += `<div class="group-label today">DNES (${today.length})</div>` + today.map((item, idx) => renderCard(item, idx + 4000)).join('');
+    
+    if(allOverdue.length === 0){
+      html = emptyState('Žiadne zmeškané hovory', 'Super! 🎉');
+    } else {
+      html = allOverdue.map((item, idx) => renderCard(item, idx + 3000)).join('');
     }
-    if(week.length){
-      html += `<div class="group-label">TENTO TÝŽDEŇ (${week.length})</div>` + week.map((item, idx) => renderCard(item, idx + 5000)).join('');
-    }
-    if(later.length){
-      html += `<div class="group-label">NESKÔR (${later.length})</div>` + later.map((item, idx) => renderCard(item, idx + 6000)).join('');
-    }
-    if(!html) html = emptyState('Žiadne nadchádzajúce hovory', 'Všetko je v poriadku! 🎉');
   } else if(currentTab === 'all'){
     const sorted = items.sort((a,b) => (a._date?.getTime() || Infinity) - (b._date?.getTime() || Infinity) || (a.time||'').localeCompare(b.time||''));
     if(sorted.length === 0){
