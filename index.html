@@ -267,9 +267,9 @@
 // Google Sheets API detaily
 const SHEET_ID = '2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T';
 const API_KEY = 'AIzaSyDRccaAkl4j_NCHTxw3LbJpI2j1IBpSAN8';
-const RANGE = 'A1:G1000';  // Čítaj A-G stĺpce (vrátane STAV v G)
+const RANGE = 'CRM Zoznam!A1:G1000';  // Čítaj zo listu "CRM Zoznam", stĺpce A-G
 
-const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
 
 let DATA = [];
 let lastSync = null;
