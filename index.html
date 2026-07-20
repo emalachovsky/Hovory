@@ -268,7 +268,17 @@ const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID
 let DATA = [];
 let lastSync = null;
 
-function parseCSVLine(line) {
+// Pomocná funkcia na čistenie textu - odstránenie line breaks
+function cleanText(text) {
+  if (!text) return '';
+  // Odstránime všetky line breaks a nahradzujeme viacnásobné medzery jednou
+  return text.toString()
+    .replace(/\r\n/g, ' ')    // Windows line breaks
+    .replace(/\n/g, ' ')      // Unix line breaks
+    .replace(/\r/g, ' ')      // Old Mac line breaks
+    .replace(/  +/g, ' ')     // Viacnásobné medzery -> jedna
+    .trim();
+}
   const result = [];
   let current = '';
   let inQuotes = false;
@@ -326,14 +336,14 @@ async function loadDataFromCSV() {
       // Skontroluj či má aspoň meno alebo firmu
       if (data['Názov firmy'] || data['Meno']) {
         rawData.push({
-          company: data['Názov firmy'] || '',
-          name: data['Meno'] || '',
-          tel: data['Telefón'] || '',
-          phoneDisplay: data['Telefón'] || '',
-          time: data['Čas'] || '',
-          date: data['Dátum'] || '',
-          note: data['Poznámka'] || '',
-          next: data['Nasleduje'] || ''
+          company: cleanText(data['Názov firmy'] || ''),
+          name: cleanText(data['Meno'] || ''),
+          tel: cleanText(data['Telefón'] || ''),
+          phoneDisplay: cleanText(data['Telefón'] || ''),
+          time: cleanText(data['Čas'] || ''),
+          date: cleanText(data['Dátum'] || ''),
+          note: cleanText(data['Poznámka'] || ''),
+          next: cleanText(data['Nasleduje'] || '')
         });
       }
     }
