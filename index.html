@@ -130,6 +130,33 @@
   .group-label.overdue{color:var(--red);}
   .group-label.today{color:var(--amber);}
 
+  .table-wrapper{
+    overflow-x:auto; margin-bottom:20px;
+  }
+  .table{
+    width:100%; border-collapse:collapse;
+    background:var(--card); border:1px solid var(--card-border);
+  }
+  .table thead{
+    background:var(--bg-elevated); position:sticky; top:0;
+  }
+  .table th{
+    color:var(--text); padding:12px 8px;
+    font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+    font-weight:700; text-align:left; border-bottom:1px solid var(--card-border);
+  }
+  .table td{
+    padding:10px 8px; border-bottom:1px solid var(--card-border);
+    font-size:12.5px; color:var(--text);
+  }
+  .table tr:hover{
+    background:rgba(245,185,66,0.05);
+  }
+  .table .text-dim{ color:var(--text-dim); }
+  .table .text-amber{ color:var(--amber); font-weight:600; }
+  .table .text-red{ color:var(--red); font-weight:600; }
+  .table .text-teal{ color:var(--teal); font-weight:600; }
+
   .card{
     display:flex; align-items:center; gap:12px;
     background:var(--card); border:1px solid var(--card-border);
@@ -147,12 +174,14 @@
 
   .card-body{flex:1; min-width:0;}
   .card-company{font-size:14.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-info{margin-top:4px;}
+  .card-detail{font-size:12px; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-name{font-size:12.5px; color:var(--text-dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-note{font-size:12px; color:var(--text-faint); margin-top:4px; display:none; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;}
+  .card-note{font-size:11px; color:var(--text-faint); margin-top:6px; max-height:2.4em; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; display:-webkit-box;}
   .card-next{
-    display:inline-block; margin-top:5px; font-size:10.5px; color:var(--teal);
+    display:inline-block; margin-top:6px; font-size:10.5px; color:var(--teal);
     background: rgba(52,214,174,0.1); border:1px solid rgba(52,214,174,0.25);
-    padding:2px 7px; border-radius:6px; font-weight:600;
+    padding:3px 8px; border-radius:6px; font-weight:600;
   }
 
   .call-btn{
@@ -513,16 +542,21 @@ function renderCard(item){
   const timeLabel = item.time ? item.time : '–';
   const dateLabel = item._date ? fmtDateShort(item._date) : '';
   const href = item.tel ? `tel:${item.tel}` : '#';
+  
+  // Zobrazovanie: A(company), B(name), C(tel), G(next), H(note), I(stav)
   return `
-  <div class="card" data-company="${escapeHtml(item.company)}" data-name="${escapeHtml(item.name)}">
+  <div class="card" data-company="${escapeHtml(item.company)}" data-name="${escapeHtml(item.name)}" data-stav="${escapeHtml(item.stav || '')}">
     <div class="time-chip"><b>${timeLabel}</b><span>${dateLabel}</span></div>
     <div class="card-body">
       <div class="card-company">${escapeHtml(item.company || item.name || 'Bez názvu')}</div>
-      ${item.name ? `<div class="card-name">${escapeHtml(item.name)}${item.phoneDisplay ? ' · '+escapeHtml(item.phoneDisplay) : ''}</div>` : (item.phoneDisplay ? `<div class="card-name">${escapeHtml(item.phoneDisplay)}</div>` : '')}
+      <div class="card-info">
+        ${item.name ? `<div class="card-detail">👤 ${escapeHtml(item.name)}</div>` : ''}
+        ${item.tel ? `<div class="card-detail">📞 ${escapeHtml(item.tel)}</div>` : ''}
+      </div>
       ${item.note ? `<div class="card-note">${escapeHtml(item.note)}</div>` : ''}
       ${item.next ? `<div class="card-next">${escapeHtml(item.next)}</div>` : ''}
     </div>
-    <a href="${href}" class="call-btn">${callIcon}</a>
+    <a href="${href}" class="call-btn" title="Zavolaj">${callIcon}</a>
   </div>`;
 }
 
