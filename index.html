@@ -217,6 +217,45 @@
     padding:12px; background:var(--card); border-radius:10px;
     border:1px solid var(--card-border); word-wrap:break-word; white-space:pre-wrap;
   }
+
+  /* STAV Filter - Farebné labely ako v Google Sheets */
+  #stavCheckboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  #stavCheckboxes label {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    user-select: none;
+    border: 2px solid transparent;
+    transition: opacity 0.2s;
+  }
+
+  #stavCheckboxes input {
+    margin-right: 6px;
+    cursor: pointer;
+  }
+
+  /* Farby pre jednotlivé stavy podľa Google Sheets */
+  #stavCheckboxes label:has(input[value="Osloveňý"]) { background: #FFD700; color: #333; }
+  #stavCheckboxes label:has(input[value="Pošle PDF"]) { background: #8B6F47; color: #fff; }
+  #stavCheckboxes label:has(input[value="Mailom"]) { background: #6BA3D4; color: #fff; }
+  #stavCheckboxes label:has(input[value="Analýza"]) { background: #90EE90; color: #333; }
+  #stavCheckboxes label:has(input[value="Klient"]) { background: #228B22; color: #fff; }
+  #stavCheckboxes label:has(input[value="Lost"]) { background: #FFB6C1; color: #333; }
+  #stavCheckboxes label:has(input[value="Odložený"]) { background: #808080; color: #fff; }
+  #stavCheckboxes label:has(input[value="Rozhoduje"]) { background: #663399; color: #fff; }
+
+  #stavCheckboxes input:not(:checked) + * {
+    opacity: 0.5;
+  }
 </style>
 </head>
 <body>
@@ -267,7 +306,7 @@
 // Google Sheets API detaily
 const SHEET_ID = '2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T';
 const API_KEY = 'AIzaSyDRccaAkl4j_NCHTxw3LbJpI2j1IBpSAN8';
-const RANGE = 'CRM Zoznam!A1:G1000';  // Čítaj zo listu "CRM Zoznam", stĺpce A-G
+const RANGE = "'CRM Zoznam'!A1:G1000";  // Čítaj zo listu "CRM Zoznam", stĺpce A-G
 
 const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
 
@@ -634,8 +673,8 @@ function updateStavCheckboxes(){
   
   const checkboxesDiv = document.getElementById('stavCheckboxes');
   checkboxesDiv.innerHTML = stavy.map(stav => `
-    <label style="display: block; margin: 4px 0; cursor: pointer; font-size: 13px;">
-      <input type="checkbox" value="${escapeHtml(stav)}" ${selectedStavy.has(stav) ? 'checked' : ''} style="margin-right: 6px; cursor: pointer;">
+    <label>
+      <input type="checkbox" value="${escapeHtml(stav)}" ${selectedStavy.has(stav) ? 'checked' : ''}>
       ${escapeHtml(stav) || '(bez stavu)'}
     </label>
   `).join('');
