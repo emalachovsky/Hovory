@@ -328,25 +328,31 @@ async function loadDataFromCSV() {
     // Parsuj zvyšné riadky
     for (let i = 1; i < values.length; i++) {
       const row = values[i];
-      if (!row || row.length === 0) continue;
+      
+      // Skontroluj či je riadok prázdny (všetky bunky sú prázdne alebo whitespace)
+      if (!row || row.length === 0 || row.every(cell => !cell || !cell.toString().trim())) {
+        continue; // Preskočí prázdne riadky
+      }
       
       const data = {};
       headers.forEach((header, idx) => {
         data[header] = row[idx] || '';
       });
       
-      // Skontroluj či má aspoň meno alebo firmu
-      if (data['Názov firmy'] || data['Meno']) {
-        rawData.push({
-          company: cleanText(data['Názov firmy'] || ''),
-          name: cleanText(data['Meno'] || ''),
-          tel: cleanText(data['Telefón'] || ''),
-          phoneDisplay: cleanText(data['Telefón'] || ''),
-          time: cleanText(data['Čas'] || ''),
-          date: cleanText(data['Dátum'] || ''),
-          note: cleanText(data['Poznámka'] || ''),
-          next: cleanText(data['Nasleduje'] || '')
-        });
+      // Vyčisti všetky polia
+      const cleanedData = {
+        company: cleanText(data['Názov firmy'] || ''),
+        name: cleanText(data['Meno'] || ''),
+        tel: cleanText(data['Telefón'] || ''),
+        phoneDisplay: cleanText(data['Telefón'] || ''),
+        time: cleanText(data['Čas'] || ''),
+        date: cleanText(data['Dátum'] || ''),
+        next: cleanText(data['Nasleduje'] || '')
+      };
+      
+      // Skontroluj či má aspoň meno alebo firmu (po vyčistení)
+      if (cleanedData.company || cleanedData.name) {
+        rawData.push(cleanedData);
       }
     }
     
@@ -571,10 +577,6 @@ function openDetail(item){
     <div class="detail-row">
       <div class="detail-label">Dátum a čas</div>
       <div class="detail-value">${item.date || '–'} ${item.time || ''}</div>
-    </div>
-    <div class="detail-row">
-      <div class="detail-label">Poznámka</div>
-      <div class="detail-value">${escapeHtml(item.note || '–')}</div>
     </div>
     <div class="detail-row">
       <div class="detail-label">Ďalší krok</div>
