@@ -58,7 +58,7 @@
     display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;
   }
   .eyebrow{
-    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
     color:var(--amber); font-weight:700; display:flex; align-items:center; gap:6px;
   }
   .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--amber); box-shadow:0 0 0 0 rgba(245,185,66,.6); animation:pulse 2s infinite;}
@@ -85,18 +85,18 @@
   }
   h1{
     font-family: "Georgia", "Iowan Old Style", serif;
-    font-size:30px; line-height:1.05; margin:6px 0 2px;
+    font-size:42px; line-height:1.05; margin:6px 0 2px;
     font-weight:600; letter-spacing:-.01em;
     text-transform:capitalize;
   }
-  .datesub{color:var(--text-dim); font-size:14px; margin-bottom:14px;}
+  .datesub{color:var(--text-dim); font-size:16px; margin-bottom:14px;}
   .stat-row{display:flex; gap:8px;}
   .stat{
     flex:1; background:var(--bg-elevated); border:1px solid var(--card-border);
-    border-radius:12px; padding:9px 10px;
+    border-radius:12px; padding:12px 10px;
   }
-  .stat b{display:block; font-size:19px; font-variant-numeric: tabular-nums; color:var(--text);}
-  .stat span{font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
+  .stat b{display:block; font-size:28px; font-variant-numeric: tabular-nums; color:var(--text);}
+  .stat span{font-size:11.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em;}
   .stat.warn b{color:var(--red);}
 
   /* TABS */
@@ -110,65 +110,68 @@
     position:sticky; top:0; z-index:19; padding-bottom:10px;
   }
   .tab{
-    flex:1; text-align:center; padding:9px 6px; border-radius:10px;
-    font-size:13px; font-weight:600; color:var(--text-dim);
+    flex:1; text-align:center; padding:11px 8px; border-radius:12px;
+    font-size:15px; font-weight:600; color:var(--text-dim);
     background:var(--bg-elevated); border:1px solid var(--card-border);
     cursor:pointer; user-select:none; transition: all .15s ease;
     position:relative;
   }
   .tab.active{ color:#12161e; background:var(--amber); border-color:var(--amber);}
-  .tab .count{ font-size:10px; opacity:.8; margin-left:3px;}
+  .tab .count{ font-size:11px; opacity:.8; margin-left:3px;}
 
-  .search-wrap{padding:10px 20px 0;}
+  .search-wrap{padding:12px 20px 0;}
   .search{
-    width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--card-border);
-    background:var(--bg-elevated); color:var(--text); font-size:15px; outline:none;
+    width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--card-border);
+    background:var(--bg-elevated); color:var(--text); font-size:16px; outline:none;
   }
   .search::placeholder{color:var(--text-faint);}
 
   /* LIST */
   main{flex:1; padding: 10px 16px calc(30px + var(--safe-bottom));}
   .group-label{
-    font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint);
+    font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint);
     padding:16px 6px 8px; font-weight:700;
   }
   .group-label.status{color:var(--amber);}
+  .group-label.overdue{color:var(--red);}
+  .group-label.today{color:var(--amber);}
 
   .card{
-    display:flex; align-items:center; gap:12px;
+    display:flex; align-items:center; gap:14px;
     background:var(--card); border:1px solid var(--card-border);
-    border-radius:14px; padding:12px; margin-bottom:8px;
+    border-radius:14px; padding:14px; margin-bottom:10px;
     text-decoration:none; color:inherit; cursor:pointer;
     transition: transform .08s ease, border-color .12s ease;
   }
   .card:active{ transform: scale(0.985); border-color: var(--amber-dim); background:#1b2129;}
 
   .status-chip{
-    min-width:56px; text-align:center; flex-shrink:0;
+    min-width:70px; text-align:center; flex-shrink:0;
   }
-  .status-chip b{display:block; font-size:14px; font-weight:700; color:var(--amber);}
-  .status-chip span{display:block; font-size:9.5px; color:var(--text-faint); text-transform:uppercase;}
+  .status-chip b{display:block; font-size:18px; font-weight:700; color:var(--amber);}
+  .status-chip span{display:block; font-size:11px; color:var(--text-faint); text-transform:uppercase;}
 
   .card-body{flex:1; min-width:0;}
-  .card-company{font-size:14.5px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-name{font-size:12.5px; color:var(--text-dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-note{font-size:12px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;}
+  .card-company{font-size:16px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-name{font-size:14px; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-note{font-size:13px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
 
   .call-btn{
-    flex-shrink:0; width:40px; height:40px; border-radius:50%;
+    flex-shrink:0; width:48px; height:48px; border-radius:50%;
     background: var(--amber); display:flex; align-items:center; justify-content:center;
     color:#0a0d12; cursor:pointer; transition:all .15s ease;
+    font-size:24px;
   }
   .call-btn:active{
     transform:scale(0.92);
   }
 
   .empty{
-    text-align:center; padding:50px 20px; color:var(--text-dim);
+    text-align:center; padding:60px 20px; color:var(--text-dim);
   }
-  .empty .spark{font-size:34px; margin-bottom:10px;}
-  .empty b{display:block; color:var(--text); font-size:16px; margin-bottom:4px;}
-  .empty p{font-size:13px; margin:0;}
+  .empty .spark{font-size:48px; margin-bottom:16px;}
+  .empty b{display:block; color:var(--text); font-size:18px; margin-bottom:8px;}
+  .empty p{font-size:15px; margin:0;}
 
   .loading{
     text-align:center; padding:50px 20px; color:var(--text-dim);
@@ -219,13 +222,17 @@
     margin-bottom:20px;
   }
   .detail-label{
-    font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
-    color:var(--text-faint); margin-bottom:6px; font-weight:700;
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--text-faint); margin-bottom:8px; font-weight:700;
   }
   .detail-value{
-    font-size:15px; color:var(--text); line-height:1.5;
-    padding:12px; background:var(--card); border-radius:10px;
+    font-size:16px; color:var(--text); line-height:1.6;
+    padding:14px; background:var(--card); border-radius:10px;
     border:1px solid var(--card-border); word-break:break-word;
+  }
+  .detail-value.action{
+    background:rgba(52,214,174,0.12); border-color:rgba(52,214,174,0.3);
+    color:var(--teal); font-weight:600;
   }
   .detail-value a{
     color:var(--teal); text-decoration:none;
@@ -249,11 +256,33 @@
     <div class="datesub" id="dateDisplay"></div>
   </header>
 
+  <div style="padding: 16px 20px 0;">
+    <div class="stat-row">
+      <div class="stat">
+        <b id="statToday">0</b>
+        <span>Dnes</span>
+      </div>
+      <div class="stat">
+        <b id="statOverdue">0</b>
+        <span>Zmeškané</span>
+      </div>
+      <div class="stat">
+        <b id="statWeek">0</b>
+        <span>Tento týždeň</span>
+      </div>
+      <div class="stat">
+        <b id="statAll">0</b>
+        <span>Celkem</span>
+      </div>
+    </div>
+  </div>
+
   <div class="tabbar-wrap">
     <div class="tabs">
-      <div class="tab active" data-tab="all">
-        Všetky <span class="count" id="countAll">0</span>
-      </div>
+      <div class="tab active" data-tab="today">Dnes</div>
+      <div class="tab" data-tab="week">Týždeň</div>
+      <div class="tab" data-tab="upcoming">Nadchádzajúce</div>
+      <div class="tab" data-tab="all">Všetky</div>
     </div>
   </div>
 
@@ -287,6 +316,7 @@ const API_KEY = 'AIzaSyDRccaAkI4j_NCHTxw3LbJpl2j1IBpSAN8';
 
 let DATA = [];
 let searchTerm = '';
+let currentTab = 'today';
 
 async function loadData(){
   try {
@@ -310,12 +340,16 @@ async function loadData(){
         company: row[0] || '',      // A - Názov firmy
         name: row[1] || '',         // B - Meno
         tel: cleanPhone(row[2] || ''),     // C - Telefón
-        tel2: cleanPhone(row[3] || ''),    // D - Telefón 2
-        status: row[4] || '',       // E - Stav
+        date: row[3] || '',         // D - Dátum
+        time: row[4] || '',         // E - Čas
         note: row[6] || '',         // G - Poznámka
-        sort: row[7] || '',         // H - Zorad
-        next: row[8] || ''          // I - Nasleduje
+        sort: row[7] || '',         // H - Zaradenie
+        next: row[8] || ''          // I - Ďalší krok
       };
+      
+      // Parse date and calculate bucket
+      item._date = parseDate(item.date);
+      item._bucket = calculateBucket(item._date);
       
       if(item.company){
         DATA.push(item);
@@ -340,6 +374,44 @@ function cleanPhone(phone){
   return phone.replace(/[^\d+]/g, '');
 }
 
+function parseDate(dateStr){
+  if(!dateStr) return null;
+  // Try various date formats: DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY
+  const formats = [
+    /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/,  // DD.MM.YYYY
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,  // DD/MM/YYYY
+    /^(\d{1,2})-(\d{1,2})-(\d{4})$/     // DD-MM-YYYY
+  ];
+  
+  for(let fmt of formats){
+    const match = dateStr.trim().match(fmt);
+    if(match){
+      const d = parseInt(match[1]);
+      const m = parseInt(match[2]) - 1;
+      const y = parseInt(match[3]);
+      return new Date(y, m, d, 0, 0, 0);
+    }
+  }
+  
+  return null;
+}
+
+function calculateBucket(date){
+  if(!date) return 'later';
+  
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const weekEnd = new Date(today);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  
+  if(date < today) return 'overdue';
+  if(date < tomorrow) return 'today';
+  if(date < weekEnd) return 'week';
+  return 'later';
+}
+
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -349,19 +421,19 @@ function emptyState(msg, sub){
 }
 
 function renderCard(item, idx){
-  const phoneDisplay = item.tel || item.tel2 || '';
-  const callPhone = item.tel || item.tel2 || '';
+  const callPhone = item.tel || '';
   
   return `
     <div class="card" data-id="${idx}">
       <div class="status-chip">
-        <b>${escapeHtml(item.status || '-')}</b>
-        <span>Stav</span>
+        <b>${escapeHtml(item.time || '-')}</b>
+        <span>${item._date ? item._date.getDate() + '.' + (item._date.getMonth()+1) + '.' : ''}</span>
       </div>
       <div class="card-body">
         <div class="card-company">${escapeHtml(item.company)}</div>
         ${item.name ? `<div class="card-name">${escapeHtml(item.name)}</div>` : ''}
         ${item.note ? `<div class="card-note">${escapeHtml(item.note)}</div>` : ''}
+        ${item.next ? `<div style="display:inline-block; margin-top:6px; font-size:12px; color:var(--teal); background:rgba(52,214,174,0.1); border:1px solid rgba(52,214,174,0.25); padding:3px 8px; border-radius:6px; font-weight:600;">${escapeHtml(item.next)}</div>` : ''}
       </div>
       ${callPhone ? `<a class="call-btn" href="tel:${callPhone}" title="Zavolať">☎</a>` : ''}
     </div>
@@ -371,7 +443,12 @@ function renderCard(item, idx){
 function render(){
   const list = document.getElementById('list');
   let items = DATA.slice();
+  let html = '';
   
+  // Update statistics
+  updateStats();
+  
+  // Apply search filter
   if(searchTerm){
     const t = searchTerm.toLowerCase();
     items = items.filter(d => 
@@ -380,21 +457,70 @@ function render(){
     );
   }
   
-  if(items.length === 0){
-    list.innerHTML = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
-  } else {
-    list.innerHTML = items.map((item, idx) => renderCard(item, idx)).join('');
+  // Apply tab filter
+  if(currentTab === 'today'){
+    const todayItems = items.filter(d => d._bucket === 'today').sort((a,b) => (a.time||'').localeCompare(b.time||''));
+    if(todayItems.length === 0){
+      html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Nadchádzajúce.');
+    } else {
+      html = todayItems.map((item, idx) => renderCard(item, idx + 1000)).join('');
+    }
+  } else if(currentTab === 'week'){
+    const weekItems = items.filter(d => d._bucket === 'week').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0) || (a.time||'').localeCompare(b.time||''));
+    if(weekItems.length === 0){
+      html = emptyState('Tento týždeň nie sú naplánované žiadne hovory', 'Pozri si všetky.');
+    } else {
+      html = weekItems.map((item, idx) => renderCard(item, idx + 2000)).join('');
+    }
+  } else if(currentTab === 'upcoming'){
+    const overdue = items.filter(d => d._bucket === 'overdue').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
+    const today = items.filter(d => d._bucket === 'today').sort((a,b) => (a.time||'').localeCompare(b.time||''));
+    const week = items.filter(d => d._bucket === 'week').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0) || (a.time||'').localeCompare(b.time||''));
+    const later = items.filter(d => d._bucket === 'later').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
     
-    document.querySelectorAll('.card').forEach((card, idx) => {
-      card.addEventListener('click', () => {
-        const item = DATA[parseInt(card.dataset.id)];
-        if(item) showDetail(item);
-      });
-    });
+    if(overdue.length){
+      html += `<div class="group-label overdue">ZMEŠKANÉ (${overdue.length})</div>` + overdue.map((item, idx) => renderCard(item, idx + 3000)).join('');
+    }
+    if(today.length){
+      html += `<div class="group-label today">DNES (${today.length})</div>` + today.map((item, idx) => renderCard(item, idx + 4000)).join('');
+    }
+    if(week.length){
+      html += `<div class="group-label">TENTO TÝŽDEŇ (${week.length})</div>` + week.map((item, idx) => renderCard(item, idx + 5000)).join('');
+    }
+    if(later.length){
+      html += `<div class="group-label">NESKÔR (${later.length})</div>` + later.map((item, idx) => renderCard(item, idx + 6000)).join('');
+    }
+    if(!html) html = emptyState('Žiadne nadchádzajúce hovory', 'Všetko je v poriadku! 🎉');
+  } else if(currentTab === 'all'){
+    const sorted = items.sort((a,b) => (a._date?.getTime() || Infinity) - (b._date?.getTime() || Infinity) || (a.time||'').localeCompare(b.time||''));
+    if(sorted.length === 0){
+      html = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
+    } else {
+      html = sorted.map((item, idx) => renderCard(item, idx + 7000)).join('');
+    }
   }
   
-  // Update count
-  document.getElementById('countAll').textContent = DATA.length;
+  list.innerHTML = html;
+  
+  document.querySelectorAll('.card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.dataset.id) % 1000;
+      const item = DATA[idx];
+      if(item) showDetail(item);
+    });
+  });
+}
+
+function updateStats(){
+  const today = DATA.filter(d => d._bucket === 'today').length;
+  const overdue = DATA.filter(d => d._bucket === 'overdue').length;
+  const week = DATA.filter(d => d._bucket === 'week').length;
+  const all = DATA.length;
+  
+  document.getElementById('statToday').textContent = today;
+  document.getElementById('statOverdue').textContent = overdue;
+  document.getElementById('statWeek').textContent = week;
+  document.getElementById('statAll').textContent = all;
 }
 
 function showDetail(item){
@@ -433,20 +559,20 @@ function showDetail(item){
     `;
   }
   
-  if(item.tel2){
+  if(item.date){
     contentHtml += `
       <div class="detail-row">
-        <div class="detail-label">Telefón 2</div>
-        <div class="detail-value"><a href="tel:${item.tel2}">${escapeHtml(item.tel2)}</a></div>
+        <div class="detail-label">Dátum</div>
+        <div class="detail-value">${escapeHtml(item.date)}</div>
       </div>
     `;
   }
   
-  if(item.status){
+  if(item.time){
     contentHtml += `
       <div class="detail-row">
-        <div class="detail-label">Stav</div>
-        <div class="detail-value">${escapeHtml(item.status)}</div>
+        <div class="detail-label">Čas</div>
+        <div class="detail-value">${escapeHtml(item.time)}</div>
       </div>
     `;
   }
@@ -473,7 +599,7 @@ function showDetail(item){
     contentHtml += `
       <div class="detail-row">
         <div class="detail-label">Ďalší krok</div>
-        <div class="detail-value">${escapeHtml(item.next)}</div>
+        <div class="detail-value action">${escapeHtml(item.next)}</div>
       </div>
     `;
   }
@@ -501,6 +627,16 @@ document.getElementById('detailOverlay').addEventListener('click', (e) => {
 document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTerm = e.target.value;
   render();
+});
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentTab = tab.dataset.tab;
+    document.getElementById('searchWrap').style.display = currentTab === 'all' ? 'block' : 'none';
+    render();
+  });
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
