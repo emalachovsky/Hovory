@@ -241,6 +241,12 @@
       <div class="tab" data-tab="upcoming">Nadchádzajúce</div>
       <div class="tab" data-tab="all">Všetky</div>
     </div>
+    <div style="padding: 8px 12px; border-top: 1px solid var(--card-border);">
+      <button id="stavFilterBtn" style="background: var(--bg-elevated); border: 1px solid var(--card-border); border-radius: 8px; padding: 6px 12px; color: var(--text-dim); cursor: pointer; width: 100%; font-size: 13px;">🔽 STAV</button>
+      <div id="stavFilterDropdown" style="display: none; margin-top: 8px; padding: 8px; background: var(--card); border-radius: 8px; border: 1px solid var(--card-border);">
+        <div id="stavCheckboxes"></div>
+      </div>
+    </div>
     <div class="search-wrap" id="searchWrap" style="display:none;">
       <input type="text" id="searchInput" class="search" placeholder="Hľadaj podľa mena alebo spoločnosti...">
     </div>
@@ -261,7 +267,7 @@
 // Google Sheets API detaily
 const SHEET_ID = '2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T';
 const API_KEY = 'AIzaSyDRccaAkl4j_NCHTxw3LbJpI2j1IBpSAN8';
-const RANGE = 'A1:Z1000';  // Čítaj veľké rozsahy
+const RANGE = 'A1:G1000';  // Čítaj A-G stĺpce (vrátane STAV v G)
 
 const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
 
@@ -347,6 +353,7 @@ async function loadDataFromCSV() {
         phoneDisplay: cleanText(data['Telefón'] || ''),
         time: cleanText(data['Čas'] || ''),
         date: cleanText(data['Dátum'] || ''),
+        stav: cleanText(data['STAV'] || ''),
         next: cleanText(data['Nasleduje'] || '')
       };
       
@@ -494,13 +501,21 @@ function emptyState(msg, sub){
 
 let currentTab = 'today';
 let searchTerm = '';
+let selectedStavy = new Set();  // Set vybraných stavov
 
 function render(){
   const list = document.getElementById('list');
   let html = '';
 
+  // Filter podľa stavov
+  const filterByStav = (items) => {
+    if(selectedStavy.size === 0) return items; // Ak žiadny stav vybraný, všetky
+    return items.filter(d => selectedStavy.has(d.stav));
+  };
+
   if(currentTab === 'today'){
-    const items = DATA.filter(d=>d._bucket==='today').sort((a,b)=>a._timeMin-b._timeMin);
+    let items = DATA.filter(d=>d._bucket==='today').sort((a,b)=>a._timeMin-b._timeMin);
+    items = filterByStav(items);
     if(items.length===0){
       const next = DATA.filter(d=>d._date && d._date > todayMid).sort((a,b)=>a._date-b._date)[0];
       html = emptyState('Na dnes nemáš naplánované žiadne hovory.', next ? `Najbližší hovor: ${next.company} — ${fmtDateShort(next._date)} o ${next.time||''}` : 'Skontroluj záložku Všetky.');
@@ -510,10 +525,10 @@ function render(){
   }
 
   if(currentTab === 'upcoming'){
-    const overdue = DATA.filter(d=>d._bucket==='overdue').sort((a,b)=>a._date-b._date);
-    const today = DATA.filter(d=>d._bucket==='today').sort((a,b)=>a._timeMin-b._timeMin);
-    const week = DATA.filter(d=>d._bucket==='week').sort((a,b)=>a._date-b._date || a._timeMin-b._timeMin);
-    const later = DATA.filter(d=>d._bucket==='later').sort((a,b)=>a._date-b._date || a._timeMin-b._timeMin);
+    const overdue = filterByStav(DATA.filter(d=>d._bucket==='overdue')).sort((a,b)=>a._date-b._date);
+    const today = filterByStav(DATA.filter(d=>d._bucket==='today')).sort((a,b)=>a._timeMin-b._timeMin);
+    const week = filterByStav(DATA.filter(d=>d._bucket==='week')).sort((a,b)=>a._date-b._date || a._timeMin-b._timeMin);
+    const later = filterByStav(DATA.filter(d=>d._bucket==='later')).sort((a,b)=>a._date-b._date || a._timeMin-b._timeMin);
     if(overdue.length){
       html += `<div class="group-label overdue">Meškajúce (${overdue.length})</div>` + overdue.map(item => renderCard(item)).join('');
     }
@@ -530,7 +545,7 @@ function render(){
   }
 
   if(currentTab === 'all'){
-    let items = DATA.slice().sort((a,b)=>{
+    let items = filterByStav(DATA.slice()).sort((a,b)=>{
       const ad = a._date ? a._date.getTime() : Infinity;
       const bd = b._date ? b._date.getTime() : Infinity;
       return ad - bd || a._timeMin - b._timeMin;
@@ -579,6 +594,10 @@ function openDetail(item){
       <div class="detail-value">${item.date || '–'} ${item.time || ''}</div>
     </div>
     <div class="detail-row">
+      <div class="detail-label">STAV</div>
+      <div class="detail-value">${escapeHtml(item.stav || '–')}</div>
+    </div>
+    <div class="detail-row">
       <div class="detail-label">Ďalší krok</div>
       <div class="detail-value">${escapeHtml(item.next || '–')}</div>
     </div>
@@ -607,6 +626,41 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
+// STAV Filter
+function updateStavCheckboxes(){
+  // Získaj všetky unikátne stavy z dát
+  const stavySet = new Set(DATA.map(d => d.stav).filter(s => s));
+  const stavy = Array.from(stavySet).sort();
+  
+  const checkboxesDiv = document.getElementById('stavCheckboxes');
+  checkboxesDiv.innerHTML = stavy.map(stav => `
+    <label style="display: block; margin: 4px 0; cursor: pointer; font-size: 13px;">
+      <input type="checkbox" value="${escapeHtml(stav)}" ${selectedStavy.has(stav) ? 'checked' : ''} style="margin-right: 6px; cursor: pointer;">
+      ${escapeHtml(stav) || '(bez stavu)'}
+    </label>
+  `).join('');
+  
+  // Pridaj event handlers
+  checkboxesDiv.querySelectorAll('input').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      if(e.target.checked){
+        selectedStavy.add(e.target.value);
+      } else {
+        selectedStavy.delete(e.target.value);
+      }
+      render();
+    });
+  });
+}
+
+// Toggle dropdown
+if(document.getElementById('stavFilterBtn')){
+  document.getElementById('stavFilterBtn').addEventListener('click', () => {
+    const dropdown = document.getElementById('stavFilterDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  });
+}
+
 document.getElementById('searchInput').addEventListener('input', e => {
   searchTerm = e.target.value;
   render();
@@ -622,6 +676,7 @@ document.getElementById('refreshBtn').addEventListener('click', async () => {
     if (DATA.length > 0) {
       classifyData();
       updateStats();
+      updateStavCheckboxes();
       render();
     }
   } catch (error) {
@@ -645,6 +700,7 @@ async function initialize() {
   if (DATA.length > 0) {
     classifyData();
     updateStats();
+    updateStavCheckboxes();
     render();
   } else {
     // Zobraz prázdny stav ak nemáme dáta
