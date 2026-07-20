@@ -335,15 +335,16 @@ async function loadData(){
       const row = rows[i];
       if(!row || row.length === 0) continue;
       
-      // Map columns: A=0, B=1, C=2, D=3, E=4, G=6, H=7, I=8
+      // Map columns: A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8
       const item = {
         company: row[0] || '',      // A - Názov firmy
         name: row[1] || '',         // B - Meno
         tel: cleanPhone(row[2] || ''),     // C - Telefón
-        date: row[3] || '',         // D - Dátum
-        time: row[4] || '',         // E - Čas
-        note: row[6] || '',         // G - Poznámka
-        sort: row[7] || '',         // H - Zaradenie
+        tel2: cleanPhone(row[3] || ''),    // D - Telefón 2
+        status: row[4] || '',       // E - Stav
+        note: row[5] || '',         // F - Poznámka (nie som si istý, ale preskočim)
+        date: row[6] || '',         // G - Dátum
+        time: row[7] || '',         // H - Čas
         next: row[8] || ''          // I - Ďalší krok
       };
       
@@ -421,18 +422,19 @@ function emptyState(msg, sub){
 }
 
 function renderCard(item, idx){
-  const callPhone = item.tel || '';
+  const callPhone = item.tel || item.tel2 || '';
+  const dateStr = item._date ? item._date.getDate() + '.' + (item._date.getMonth()+1) : '';
   
   return `
     <div class="card" data-id="${idx}">
       <div class="status-chip">
         <b>${escapeHtml(item.time || '-')}</b>
-        <span>${item._date ? item._date.getDate() + '.' + (item._date.getMonth()+1) + '.' : ''}</span>
+        <span>${dateStr}</span>
       </div>
       <div class="card-body">
         <div class="card-company">${escapeHtml(item.company)}</div>
         ${item.name ? `<div class="card-name">${escapeHtml(item.name)}</div>` : ''}
-        ${item.note ? `<div class="card-note">${escapeHtml(item.note)}</div>` : ''}
+        ${item.status ? `<div class="card-note">${escapeHtml(item.status)}</div>` : ''}
         ${item.next ? `<div style="display:inline-block; margin-top:6px; font-size:12px; color:var(--teal); background:rgba(52,214,174,0.1); border:1px solid rgba(52,214,174,0.25); padding:3px 8px; border-radius:6px; font-weight:600;">${escapeHtml(item.next)}</div>` : ''}
       </div>
       ${callPhone ? `<a class="call-btn" href="tel:${callPhone}" title="Zavolať">☎</a>` : ''}
@@ -559,6 +561,24 @@ function showDetail(item){
     `;
   }
   
+  if(item.tel2){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Telefón 2</div>
+        <div class="detail-value"><a href="tel:${item.tel2}">${escapeHtml(item.tel2)}</a></div>
+      </div>
+    `;
+  }
+  
+  if(item.status){
+    contentHtml += `
+      <div class="detail-row">
+        <div class="detail-label">Stav</div>
+        <div class="detail-value">${escapeHtml(item.status)}</div>
+      </div>
+    `;
+  }
+  
   if(item.date){
     contentHtml += `
       <div class="detail-row">
@@ -582,15 +602,6 @@ function showDetail(item){
       <div class="detail-row">
         <div class="detail-label">Poznámka</div>
         <div class="detail-value">${escapeHtml(item.note)}</div>
-      </div>
-    `;
-  }
-  
-  if(item.sort){
-    contentHtml += `
-      <div class="detail-row">
-        <div class="detail-label">Zaradenie</div>
-        <div class="detail-value">${escapeHtml(item.sort)}</div>
       </div>
     `;
   }
