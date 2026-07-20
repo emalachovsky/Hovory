@@ -258,7 +258,12 @@
 </div>
 
 <script>
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T/pub?gid=356854980&single=true&output=csv';
+// Google Sheets API detaily
+const SHEET_ID = '2PACX-1vT1MQEhjX-Y6oigTEGFLdxI7RAspdVKg_3XA64yGMKbtEir6JiFoTyEj3N8tKWyJ8hwWFwMJCAdW69T';
+const API_KEY = 'AIzaSyDRccaAkl4j_NCHTxw3LbJpI2j1IBpSAN8';
+const RANGE = 'A1:Z1000';  // Čítaj veľké rozsahy
+
+const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
 
 let DATA = [];
 let lastSync = null;
@@ -291,32 +296,65 @@ async function loadDataFromCSV() {
   const btn = document.getElementById('refreshBtn');
   
   try {
-    console.log('Pokúšam stiahnuť aktuálne dáta z internetu...');
+    console.log('📡 Pokúšam stiahnuť dáta z Google Sheets...');
     btn.title = 'Načítavam...';
     
-    const response = await fetch(CSV_URL);
+    const response = await fetch(SHEETS_API_URL);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
-    const csv = await response.text();
-    const data = await parseCSV(csv);
+    const json = await response.json();
+    const values = json.values;
     
-    if (data.length > 0) {
+    if (!values || values.length === 0) {
+      throw new Error('Tabuľka je prázdna');
+    }
+    
+    // Prvý riadok sú headery
+    const headers = values[0];
+    const rawData = [];
+    
+    // Parsuj zvyšné riadky
+    for (let i = 1; i < values.length; i++) {
+      const row = values[i];
+      if (!row || row.length === 0) continue;
+      
+      const data = {};
+      headers.forEach((header, idx) => {
+        data[header] = row[idx] || '';
+      });
+      
+      // Skontroluj či má aspoň meno alebo firmu
+      if (data['Názov firmy'] || data['Meno']) {
+        rawData.push({
+          company: data['Názov firmy'] || '',
+          name: data['Meno'] || '',
+          tel: data['Telefón'] || '',
+          phoneDisplay: data['Telefón'] || '',
+          time: data['Čas'] || '',
+          date: data['Dátum'] || '',
+          note: data['Poznámka'] || '',
+          next: data['Nasleduje'] || ''
+        });
+      }
+    }
+    
+    if (rawData.length > 0) {
       // Uložiť do localStorage
-      localStorage.setItem('hovory_data', JSON.stringify(data));
+      localStorage.setItem('hovory_data', JSON.stringify(rawData));
       lastSync = new Date().toLocaleTimeString('sk-SK');
       localStorage.setItem('hovory_lastsync', lastSync);
       
-      console.log(`✅ Úspešne stiahnuté ${data.length} kontaktov. Uložené lokálne.`);
-      btn.title = `Posledná synchronizácia: ${lastSync}`;
-      return data;
+      console.log(`✅ Úspešne stiahnuté ${rawData.length} kontaktov z Google Sheets. Uložené lokálne.`);
+      btn.title = `📱 Posledná synchronizácia: ${lastSync}`;
+      return rawData;
     } else {
-      throw new Error('Žiadne dáta v CSV');
+      throw new Error('Žiadne platné dáta v tabuľke');
     }
   } catch (error) {
-    console.warn('❌ Chyba pri sťahovaní:', error.message);
+    console.warn('❌ Chyba pri sťahovaní z API:', error.message);
     
     // Fallback: Načítať zo localStorage
-    console.log('Načítavam uložené dáta z mobilného úložiska...');
+    console.log('📚 Načítavam uložené dáta z mobilného úložiska...');
     const stored = localStorage.getItem('hovory_data');
     lastSync = localStorage.getItem('hovory_lastsync');
     
@@ -333,40 +371,11 @@ async function loadDataFromCSV() {
         return [];
       }
     } else {
-      console.error('Žiadne uložené dáta a internet nie je dostupný.');
-      btn.title = '❌ Žiadne dáta a bez internetu';
+      console.error('❌ Žiadne uložené dáta a internet nie je dostupný.');
+      btn.title = '❌ Žiadne dáta';
       return [];
     }
   }
-}
-
-async function parseCSV(csv) {
-  const lines = csv.trim().split('\n');
-  const headers = parseCSVLine(lines[0]);
-  
-  const rawData = [];
-  for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    const values = parseCSVLine(lines[i]);
-    const row = {};
-    headers.forEach((header, idx) => {
-      row[header] = values[idx] || '';
-    });
-    if (row['Názov firmy'] || row['Meno']) {
-      rawData.push({
-        company: row['Názov firmy'] || '',
-        name: row['Meno'] || '',
-        tel: row['Telefón'] || '',
-        phoneDisplay: row['Telefón'] || '',
-        time: row['Čas'] || '',
-        date: row['Dátum'] || '',
-        note: row['Poznámka'] || '',
-        next: row['Nasleduje'] || ''
-      });
-    }
-  }
-  
-  return rawData;
 }
 
 function parseSkDate(s){
