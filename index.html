@@ -279,6 +279,8 @@ function cleanText(text) {
     .replace(/  +/g, ' ')     // Viacnásobné medzery -> jedna
     .trim();
 }
+
+function parseCSVLine(line) {
   const result = [];
   let current = '';
   let inQuotes = false;
