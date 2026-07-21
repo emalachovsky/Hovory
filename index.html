@@ -258,13 +258,22 @@
 <div class="app">
   <header>
     <div class="header-top">
-      <div class="eyebrow">
-        <span class="dot"></span>
-        CRM
+      <div style="display:flex; align-items:center; gap:12px; flex:1;">
+        <svg viewBox="0 0 60 60" width="40" height="40" style="flex-shrink:0;">
+          <circle cx="30" cy="30" r="28" stroke="#6366f1" stroke-width="3" fill="none"/>
+          <path d="M 20 20 Q 30 28 30 40 Q 30 28 40 20" stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="25" y1="35" x2="35" y2="35" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div style="flex:1;">
+          <div class="eyebrow" style="margin:0;">
+            <span class="dot"></span>
+            CRM
+          </div>
+          <h1 style="margin:0; font-size:24px;">EnergyPartners</h1>
+        </div>
       </div>
       <button class="refresh-btn" id="refreshBtn" title="Obnoviť">⟳</button>
     </div>
-    <h1>EnergyPartners</h1>
     <div class="datesub" id="dateDisplay"></div>
   </header>
 
@@ -438,10 +447,28 @@ function renderCard(item, idx){
   const callPhone = item.tel || item.tel2 || '';
   const dateStr = item._date ? item._date.getDate() + '.' + (item._date.getMonth()+1) : '';
   
+  // Skontrolovať či je čas v minulosti
+  let timeColor = 'var(--amber)';
+  if(item._date && item.time){
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const itemDate = new Date(item._date.getFullYear(), item._date.getMonth(), item._date.getDate());
+    
+    if(itemDate.getTime() === today.getTime()){
+      // Dnes - porovnaj čas
+      const currentTime = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+      if((item.time || '') < currentTime){
+        timeColor = 'var(--red)'; // Červená ak je minulý čas
+      }
+    } else if(itemDate < today){
+      timeColor = 'var(--red)'; // Červená ak je minulý dátum
+    }
+  }
+  
   return `
     <div class="card" data-item="${JSON.stringify(item).replace(/"/g, '&quot;')}">
       <div class="status-chip">
-        <b>${escapeHtml(item.time || '-')}</b>
+        <b style="color:${timeColor};">${escapeHtml(item.time || '-')}</b>
         <span>${dateStr}</span>
         ${item.status ? `<div style="margin-top:6px; font-size:11px; color:#0a0d12; background:var(--teal); border:1px solid var(--teal); padding:3px 8px; border-radius:5px; font-weight:600; white-space:nowrap;">${escapeHtml(item.status)}</div>` : ''}
       </div>
@@ -483,7 +510,13 @@ function render(){
       html = todayItems.map((item, idx) => renderCard(item, idx)).join('');
     }
   } else if(currentTab === 'all'){
-    const sorted = items.sort((a,b) => (a._date?.getTime() || Infinity) - (b._date?.getTime() || Infinity) || (a.time||'').localeCompare(b.time||''));
+    // Triedenie podľa dátumu a času
+    const sorted = items.sort((a,b) => {
+      const dateA = a._date?.getTime() || Infinity;
+      const dateB = b._date?.getTime() || Infinity;
+      if(dateA !== dateB) return dateA - dateB;
+      return (a.time||'').localeCompare(b.time||'');
+    });
     if(sorted.length === 0){
       html = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
     } else {
