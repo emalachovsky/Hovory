@@ -149,10 +149,10 @@
     min-width:70px; text-align:center; flex-shrink:0;
   }
   .status-chip b{display:block; font-size:18px; font-weight:700; color:var(--amber);}
-  .status-chip span{display:block; font-size:11px; color:var(--text-faint); text-transform:uppercase;}
+  .status-chip span{display:block; font-size:14px; color:var(--text-faint); text-transform:uppercase;}
 
   .card-body{flex:1; min-width:0;}
-  .card-company{font-size:18px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-company{font-size:18px; font-weight:700; color:var(--teal); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-name{font-size:14px; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .card-note{font-size:13px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
 
@@ -206,13 +206,18 @@
   }
   .detail-header h2{
     margin:0; font-size:18px; font-weight:600; color:var(--text);
+    flex:1;
   }
-  .detail-close{
+  .detail-buttons{
+    display:flex; gap:10px;
+  }
+  .detail-back, .detail-close{
     width:32px; height:32px; border-radius:50%; background:var(--bg-elevated);
     border:1px solid var(--card-border); color:var(--text); cursor:pointer;
     display:flex; align-items:center; justify-content:center; font-size:20px;
+    transition: all .15s ease;
   }
-  .detail-close:active{
+  .detail-back:active, .detail-close:active{
     background:var(--card);
   }
   .detail-content{
@@ -280,8 +285,6 @@
   <div class="tabbar-wrap">
     <div class="tabs">
       <div class="tab active" data-tab="today">Dnes</div>
-      <div class="tab" data-tab="week">Týždeň</div>
-      <div class="tab" data-tab="overdue">Zmeškané</div>
       <div class="tab" data-tab="all">Všetky</div>
     </div>
   </div>
@@ -304,7 +307,10 @@
 <div class="detail-panel" id="detailPanel">
   <div class="detail-header">
     <h2 id="detailTitle">Detail</h2>
-    <div class="detail-close" id="detailClose">✕</div>
+    <div class="detail-buttons">
+      <button class="detail-back" id="detailBack" title="Späť">←</button>
+      <button class="detail-close" id="detailClose" title="Zatvoriť">✕</button>
+    </div>
   </div>
   <div class="detail-content" id="detailContent"></div>
 </div>
@@ -424,20 +430,19 @@ function emptyState(msg, sub){
 function renderCard(item, idx){
   const callPhone = item.tel || item.tel2 || '';
   const dateStr = item._date ? item._date.getDate() + '.' + (item._date.getMonth()+1) : '';
+  const itemJson = JSON.stringify(item).replace(/"/g, '&quot;');
   
   return `
-    <div class="card" data-id="${idx}">
+    <div class="card" data-item="${itemJson}">
       <div class="status-chip">
         <b>${escapeHtml(item.time || '-')}</b>
         <span>${dateStr}</span>
+        ${item.next ? `<div style="margin-top:6px; font-size:11px; color:#0a0d12; background:var(--teal); border:1px solid var(--teal); padding:3px 8px; border-radius:5px; font-weight:600; white-space:nowrap;">${escapeHtml(item.next)}</div>` : ''}
       </div>
       <div class="card-body">
         <div class="card-company">${escapeHtml(item.company)}</div>
         ${item.name ? `<div class="card-name">${escapeHtml(item.name)}</div>` : ''}
-        <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
-          ${item.status ? `<div style="display:inline-block; font-size:11px; color:#0a0d12; background:var(--teal); border:1px solid var(--teal); padding:4px 10px; border-radius:6px; font-weight:600;">${escapeHtml(item.status)}</div>` : ''}
-          ${item.next ? `<div style="display:inline-block; font-size:11px; color:var(--text); background:var(--card-border); border:1px solid var(--card-border); padding:4px 10px; border-radius:6px; font-weight:500;">${escapeHtml(item.next)}</div>` : ''}
-        </div>
+        ${item.status ? `<div style="display:inline-block; margin-top:8px; font-size:11px; color:#0a0d12; background:var(--teal); border:1px solid var(--teal); padding:4px 10px; border-radius:6px; font-weight:600;">${escapeHtml(item.status)}</div>` : ''}
       </div>
       ${callPhone ? `<a class="call-btn" href="tel:${callPhone}" title="Zavolať">☎</a>` : ''}
     </div>
@@ -465,42 +470,16 @@ function render(){
   if(currentTab === 'today'){
     const todayItems = items.filter(d => d._bucket === 'today').sort((a,b) => (a.time||'').localeCompare(b.time||''));
     if(todayItems.length === 0){
-      html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Zmeškané.');
+      html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Všetky.');
     } else {
-      html = todayItems.map((item, idx) => renderCard(item, idx + 1000)).join('');
-    }
-  } else if(currentTab === 'week'){
-    const weekItems = items.filter(d => d._bucket === 'week').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0) || (a.time||'').localeCompare(b.time||''));
-    if(weekItems.length === 0){
-      html = emptyState('Tento týždeň nie sú naplánované žiadne hovory', 'Pozri si všetky.');
-    } else {
-      html = weekItems.map((item, idx) => renderCard(item, idx + 2000)).join('');
-    }
-  } else if(currentTab === 'overdue'){
-    const overdueItems = items.filter(d => d._bucket === 'overdue').sort((a,b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
-    const overdueToday = items.filter(d => {
-      if(d._bucket !== 'today') return false;
-      const now = new Date();
-      const currentTime = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
-      return (d.time || '') > currentTime;
-    }).sort((a,b) => (a.time||'').localeCompare(b.time||''));
-    
-    let allOverdue = [...overdueItems];
-    if(overdueToday.length){
-      allOverdue = [...overdueToday, ...overdueItems];
-    }
-    
-    if(allOverdue.length === 0){
-      html = emptyState('Žiadne zmeškané hovory', 'Super! 🎉');
-    } else {
-      html = allOverdue.map((item, idx) => renderCard(item, idx + 3000)).join('');
+      html = todayItems.map((item, idx) => renderCard(item, idx)).join('');
     }
   } else if(currentTab === 'all'){
     const sorted = items.sort((a,b) => (a._date?.getTime() || Infinity) - (b._date?.getTime() || Infinity) || (a.time||'').localeCompare(b.time||''));
     if(sorted.length === 0){
       html = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
     } else {
-      html = sorted.map((item, idx) => renderCard(item, idx + 7000)).join('');
+      html = sorted.map((item, idx) => renderCard(item, idx)).join('');
     }
   }
   
@@ -508,9 +487,11 @@ function render(){
   
   document.querySelectorAll('.card').forEach((card) => {
     card.addEventListener('click', () => {
-      const idx = parseInt(card.dataset.id) % 1000;
-      const item = DATA[idx];
-      if(item) showDetail(item);
+      const itemJson = card.getAttribute('data-item');
+      if(itemJson){
+        const item = JSON.parse(itemJson);
+        showDetail(item);
+      }
     });
   });
 }
@@ -630,6 +611,7 @@ function closeDetail(){
 
 // Event listeners
 document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailBack').addEventListener('click', closeDetail);
 
 document.getElementById('detailOverlay').addEventListener('click', (e) => {
   if(e.target === document.getElementById('detailOverlay')){
