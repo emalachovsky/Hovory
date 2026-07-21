@@ -68,10 +68,10 @@
     100%{box-shadow:0 0 0 0 rgba(245,185,66,0);}
   }
   .refresh-btn{
-    width:36px; height:36px; border-radius:50%;
+    width:40px; height:40px; border-radius:50%;
     background:var(--bg-elevated); border:1px solid var(--card-border);
     color:var(--amber); cursor:pointer; display:flex; align-items:center; justify-content:center;
-    font-size:18px; transition: all .2s ease;
+    font-size:24px; transition: all .2s ease;
   }
   .refresh-btn:hover{
     border-color:var(--amber); background:rgba(245,185,66,0.1);
@@ -84,7 +84,7 @@
     to{transform:rotate(360deg);}
   }
   h1{
-    font-family: "Georgia", "Iowan Old Style", serif;
+    font-family: "Helvetica", "Helvetica Neue", Arial, sans-serif;
     font-size:32px; line-height:1.05; margin:6px 0 2px;
     font-weight:600; letter-spacing:-.01em;
     text-transform:capitalize;
@@ -153,7 +153,7 @@
 
   .card-body{flex:1; min-width:0;}
   .card-company{font-size:16px; font-weight:700; color:#00bfff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .card-name{font-size:13px; color:var(--text-dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .card-name{font-size:15px; color:#ffffff; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500;}
   .card-note{font-size:12px; color:var(--text-faint); margin-top:4px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;}
 
   .call-btn{
@@ -444,7 +444,7 @@ function renderCard(item, idx){
       <div class="card-body">
         <div class="card-company">${escapeHtml(item.company)}</div>
         ${item.name ? `<div class="card-name">${escapeHtml(item.name)}</div>` : ''}
-        <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-height:20px;">
+        <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; min-height:20px;">
           ${item.next ? `<span style="font-size:12px; color:var(--text-dim);">${escapeHtml(item.next)}</span>` : ''}
         </div>
       </div>
@@ -635,6 +635,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     currentTab = tab.dataset.tab;
     document.getElementById('searchWrap').style.display = currentTab === 'all' ? 'block' : 'none';
     render();
+    loadData();
   });
 });
 
