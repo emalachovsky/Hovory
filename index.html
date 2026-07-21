@@ -258,18 +258,17 @@
 <div class="app">
   <header>
     <div class="header-top">
-      <div style="display:flex; align-items:center; gap:12px; flex:1;">
-        <svg viewBox="0 0 60 60" width="40" height="40" style="flex-shrink:0;">
-          <circle cx="30" cy="30" r="28" stroke="#6366f1" stroke-width="3" fill="none"/>
-          <path d="M 20 20 Q 30 28 30 40 Q 30 28 40 20" stroke="#6366f1" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="25" y1="35" x2="35" y2="35" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 60 60" width="36" height="36" style="flex-shrink:0;">
+          <circle cx="30" cy="30" r="27" stroke="#4f46e5" stroke-width="2.5" fill="none"/>
+          <path d="M 20 20 Q 30 28 30 40 Q 30 28 40 20" stroke="#4f46e5" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="25" y1="35" x2="35" y2="35" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <div style="flex:1;">
-          <div class="eyebrow" style="margin:0;">
-            <span class="dot"></span>
-            CRM
+          <div style="font-size:11px; font-weight:700; color:var(--text-dim); letter-spacing:.05em; margin:0;">
+            ENERGYPARTNERS.SK
           </div>
-          <h1 style="margin:0; font-size:24px;">EnergyPartners</h1>
+          <h1 style="margin:0; font-size:18px; color:var(--text);">HOVORY</h1>
         </div>
       </div>
       <button class="refresh-btn" id="refreshBtn" title="Obnoviť">⟳</button>
@@ -391,6 +390,14 @@ async function loadData(){
   }
 }
 
+function timeToMinutes(timeStr){
+  if(!timeStr) return 0;
+  const parts = timeStr.split(':');
+  const hours = parseInt(parts[0]) || 0;
+  const minutes = parseInt(parts[1]) || 0;
+  return hours * 60 + minutes;
+}
+
 function cleanPhone(phone){
   if(!phone) return '';
   // Remove spaces and special chars, keep only numbers and +
@@ -455,9 +462,10 @@ function renderCard(item, idx){
     const itemDate = new Date(item._date.getFullYear(), item._date.getMonth(), item._date.getDate());
     
     if(itemDate.getTime() === today.getTime()){
-      // Dnes - porovnaj čas
-      const currentTime = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
-      if((item.time || '') < currentTime){
+      // Dnes - porovnaj čas v minútach
+      const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+      const itemTimeMinutes = timeToMinutes(item.time || '');
+      if(itemTimeMinutes < currentTimeMinutes){
         timeColor = 'var(--red)'; // Červená ak je minulý čas
       }
     } else if(itemDate < today){
@@ -503,7 +511,7 @@ function render(){
   
   // Apply tab filter
   if(currentTab === 'today'){
-    const todayItems = items.filter(d => d._bucket === 'today').sort((a,b) => (a.time||'').localeCompare(b.time||''));
+    const todayItems = items.filter(d => d._bucket === 'today').sort((a,b) => timeToMinutes(a.time||'') - timeToMinutes(b.time||''));
     if(todayItems.length === 0){
       html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Všetky.');
     } else {
@@ -515,7 +523,7 @@ function render(){
       const dateA = a._date?.getTime() || Infinity;
       const dateB = b._date?.getTime() || Infinity;
       if(dateA !== dateB) return dateA - dateB;
-      return (a.time||'').localeCompare(b.time||'');
+      return timeToMinutes(a.time||'') - timeToMinutes(b.time||'');
     });
     if(sorted.length === 0){
       html = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
