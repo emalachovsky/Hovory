@@ -120,6 +120,19 @@
   .tab.active{ color:#12161e; background:var(--amber); border-color:var(--amber);}
   .tab .count{ font-size:11px; opacity:.8; margin-left:3px;}
 
+  .status-dropdown{
+    display:none; flex-direction:column; gap:4px;
+    padding:8px; margin:0 8px 10px; border-radius:12px;
+    background:var(--bg-elevated); border:1px solid var(--card-border);
+  }
+  .status-dropdown.open{display:flex;}
+  .status-option{
+    padding:11px 12px; border-radius:9px; font-size:15px; font-weight:600;
+    color:var(--text); cursor:pointer; user-select:none; transition: background .12s ease;
+  }
+  .status-option:active{background:var(--card);}
+  .status-option.active{ color:#12161e; background:var(--amber);}
+
   .search-wrap{padding:12px 8px 0;}
   .search{
     width:100%; padding:12px 8px; border-radius:10px; border:1px solid var(--card-border);
@@ -283,10 +296,22 @@
     <div class="tabs">
       <div class="tab active" data-tab="today">Dnes</div>
       <div class="tab" data-tab="all">Všetky</div>
+      <div class="tab" data-tab="status" id="statusTab">Stav</div>
+    </div>
+    <div class="status-dropdown" id="statusDropdown">
+      <div class="status-option active" data-status="">Všetky</div>
+      <div class="status-option" data-status="Oslovený">Oslovený</div>
+      <div class="status-option" data-status="Pošle PDF">Pošle PDF</div>
+      <div class="status-option" data-status="Mailom">Mailom</div>
+      <div class="status-option" data-status="Analýza">Analýza</div>
+      <div class="status-option" data-status="Klient">Klient</div>
+      <div class="status-option" data-status="Lost">Lost</div>
+      <div class="status-option" data-status="Odložený">Odložený</div>
+      <div class="status-option" data-status="Rozhoduje">Rozhoduje</div>
     </div>
   </div>
 
-  <div class="search-wrap">
+  <div class="search-wrap" id="searchWrap">
     <div style="position:relative; display:flex; align-items:center;">
       <input type="text" class="search" id="searchInput" placeholder="Hľadaj spoločnosť alebo osobu...">
       <button id="searchClear" style="position:absolute; right:12px; background:none; border:none; color:var(--text-dim); font-size:20px; cursor:pointer; padding:4px 8px; display:none; transition:all .15s ease;">✕</button>
@@ -323,6 +348,7 @@ const API_KEY = 'AIzaSyDRccaAkI4j_NCHTxw3LbJpl2j1IBpSAN8';
 let DATA = [];
 let searchTerm = '';
 let currentTab = 'today';
+let statusFilter = '';
 
 async function loadData(){
   try {
@@ -515,6 +541,22 @@ function render(){
     } else {
       html = sorted.map((item, idx) => renderCard(item, idx)).join('');
     }
+  } else if(currentTab === 'status'){
+    if(statusFilter){
+      items = items.filter(d => (d.status||'') === statusFilter);
+    }
+    // Triedenie podľa dátumu a času
+    const sorted = items.sort((a,b) => {
+      const dateA = a._date?.getTime() || Infinity;
+      const dateB = b._date?.getTime() || Infinity;
+      if(dateA !== dateB) return dateA - dateB;
+      return timeToMinutes(a.time||'') - timeToMinutes(b.time||'');
+    });
+    if(sorted.length === 0){
+      html = emptyState('Nič sa nenašlo', statusFilter ? 'Skús iný stav.' : 'Skús iné hľadané slovo.');
+    } else {
+      html = sorted.map((item, idx) => renderCard(item, idx)).join('');
+    }
   }
   
   list.innerHTML = html;
@@ -682,6 +724,22 @@ document.getElementById('searchClear').addEventListener('click', () => {
 
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
+    const dropdown = document.getElementById('statusDropdown');
+
+    if(tab.dataset.tab === 'status'){
+      // Kliknutie na "Stav" iba otvorí/zavrie zoznam možností
+      dropdown.classList.toggle('open');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentTab = 'status';
+      searchTerm = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchWrap').style.display = 'none';
+      render();
+      return;
+    }
+
+    dropdown.classList.remove('open');
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentTab = tab.dataset.tab;
@@ -697,6 +755,19 @@ document.querySelectorAll('.tab').forEach(tab => {
       btn.classList.remove('spinning');
       render();
     }, 500);
+  });
+});
+
+document.querySelectorAll('.status-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.status-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    statusFilter = opt.dataset.status;
+    currentTab = 'status';
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('statusTab').classList.add('active');
+    document.getElementById('statusDropdown').classList.remove('open');
+    render();
   });
 });
 
