@@ -120,6 +120,9 @@
   .tab.active{ color:#12161e; background:var(--amber); border-color:var(--amber);}
   .tab .count{ font-size:11px; opacity:.8; margin-left:3px;}
 
+  .tab.stav-tab{ color:var(--teal); border-color:var(--teal); }
+  .tab.stav-tab.filtered{ color:#0a0d12; background:var(--teal); border-color:var(--teal); }
+
   .status-dropdown{
     display:none; flex-direction:column; gap:4px;
     padding:8px; margin:0 8px 10px; border-radius:12px;
@@ -289,6 +292,10 @@
         <b id="statOverdue">0</b>
         <span>Zmeškané</span>
       </div>
+      <div class="stat">
+        <b id="statFiltered">0</b>
+        <span>Celkom</span>
+      </div>
     </div>
   </div>
 
@@ -296,7 +303,7 @@
     <div class="tabs">
       <div class="tab active" data-tab="today">Dnes</div>
       <div class="tab" data-tab="all">Všetky</div>
-      <div class="tab" data-tab="status" id="statusTab">Stav</div>
+      <div class="tab stav-tab" id="statusTab">Stav</div>
     </div>
     <div class="status-dropdown" id="statusDropdown">
       <div class="status-option active" data-status="">Všetky</div>
@@ -373,7 +380,7 @@ async function loadData(){
         name: row[1] || '',         // B - Meno
         tel: cleanPhone(row[2] || ''),     // C - Telefón
         tel2: cleanPhone(row[3] || ''),    // D - Telefón 2
-        status: row[4] || '',       // E - Stav
+        status: (row[4] || '').trim(),       // E - Stav
         note: row[5] || '',         // F - Poznámka (nie som si istý, ale preskočim)
         date: row[6] || '',         // G - Dátum
         time: row[7] || '',         // H - Čas
@@ -520,43 +527,34 @@ function render(){
     );
   }
   
-  // Apply tab filter
+  // Apply tab filter (Dnes / Všetky)
   if(currentTab === 'today'){
-    const todayItems = items.filter(d => d._bucket === 'today').sort((a,b) => timeToMinutes(a.time||'') - timeToMinutes(b.time||''));
-    if(todayItems.length === 0){
-      html = emptyState('Dnes nie sú naplánované žiadne hovory', 'Pozri si Všetky.');
+    items = items.filter(d => d._bucket === 'today');
+  }
+  
+  // Apply status filter (nezávisle - vždy sa uplatní navyše nad Dnes/Všetky)
+  if(statusFilter){
+    items = items.filter(d => (d.status||'').trim().normalize('NFC') === statusFilter.trim().normalize('NFC'));
+  }
+  
+  // Triedenie podľa dátumu a času
+  const sorted = items.sort((a,b) => {
+    const dateA = a._date?.getTime() || Infinity;
+    const dateB = b._date?.getTime() || Infinity;
+    if(dateA !== dateB) return dateA - dateB;
+    return timeToMinutes(a.time||'') - timeToMinutes(b.time||'');
+  });
+  
+  document.getElementById('statFiltered').textContent = sorted.length;
+  
+  if(sorted.length === 0){
+    if(currentTab === 'today'){
+      html = emptyState(statusFilter ? 'Dnes nie sú žiadne položky s týmto stavom' : 'Dnes nie sú naplánované žiadne hovory', 'Pozri si Všetky.');
     } else {
-      html = todayItems.map((item, idx) => renderCard(item, idx)).join('');
-    }
-  } else if(currentTab === 'all'){
-    // Triedenie podľa dátumu a času
-    const sorted = items.sort((a,b) => {
-      const dateA = a._date?.getTime() || Infinity;
-      const dateB = b._date?.getTime() || Infinity;
-      if(dateA !== dateB) return dateA - dateB;
-      return timeToMinutes(a.time||'') - timeToMinutes(b.time||'');
-    });
-    if(sorted.length === 0){
-      html = emptyState('Nič sa nenašlo', 'Skús iné hľadané slovo.');
-    } else {
-      html = sorted.map((item, idx) => renderCard(item, idx)).join('');
-    }
-  } else if(currentTab === 'status'){
-    if(statusFilter){
-      items = items.filter(d => (d.status||'') === statusFilter);
-    }
-    // Triedenie podľa dátumu a času
-    const sorted = items.sort((a,b) => {
-      const dateA = a._date?.getTime() || Infinity;
-      const dateB = b._date?.getTime() || Infinity;
-      if(dateA !== dateB) return dateA - dateB;
-      return timeToMinutes(a.time||'') - timeToMinutes(b.time||'');
-    });
-    if(sorted.length === 0){
       html = emptyState('Nič sa nenašlo', statusFilter ? 'Skús iný stav.' : 'Skús iné hľadané slovo.');
-    } else {
-      html = sorted.map((item, idx) => renderCard(item, idx)).join('');
     }
+  } else {
+    html = sorted.map((item, idx) => renderCard(item, idx)).join('');
   }
   
   list.innerHTML = html;
@@ -722,25 +720,9 @@ document.getElementById('searchClear').addEventListener('click', () => {
   render();
 });
 
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('.tab:not(.stav-tab)').forEach(tab => {
   tab.addEventListener('click', () => {
-    const dropdown = document.getElementById('statusDropdown');
-
-    if(tab.dataset.tab === 'status'){
-      // Kliknutie na "Stav" iba otvorí/zavrie zoznam možností
-      dropdown.classList.toggle('open');
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentTab = 'status';
-      searchTerm = '';
-      document.getElementById('searchInput').value = '';
-      document.getElementById('searchWrap').style.display = 'none';
-      render();
-      return;
-    }
-
-    dropdown.classList.remove('open');
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab:not(.stav-tab)').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentTab = tab.dataset.tab;
     searchTerm = '';
@@ -758,18 +740,24 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
+document.getElementById('statusTab').addEventListener('click', () => {
+  // Stav je nezávislé tlačidlo - iba otvorí/zavrie zoznam možností,
+  // neovplyvňuje výber Dnes / Všetky
+  document.getElementById('statusDropdown').classList.toggle('open');
+});
+
 document.querySelectorAll('.status-option').forEach(opt => {
   opt.addEventListener('click', () => {
     document.querySelectorAll('.status-option').forEach(o => o.classList.remove('active'));
     opt.classList.add('active');
     statusFilter = opt.dataset.status;
-    currentTab = 'status';
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('statusTab').classList.add('active');
+    document.getElementById('statusTab').classList.toggle('filtered', !!statusFilter);
     document.getElementById('statusDropdown').classList.remove('open');
     render();
   });
 });
+
+
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
   const btn = document.getElementById('refreshBtn');
