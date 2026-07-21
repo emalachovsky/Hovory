@@ -258,19 +258,7 @@
 <div class="app">
   <header>
     <div class="header-top">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <svg viewBox="0 0 60 60" width="36" height="36" style="flex-shrink:0;">
-          <circle cx="30" cy="30" r="27" stroke="#4f46e5" stroke-width="2.5" fill="none"/>
-          <path d="M 20 20 Q 30 28 30 40 Q 30 28 40 20" stroke="#4f46e5" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="25" y1="35" x2="35" y2="35" stroke="#4f46e5" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div style="flex:1;">
-          <div style="font-size:11px; font-weight:700; color:var(--text-dim); letter-spacing:.05em; margin:0;">
-            ENERGYPARTNERS.SK
-          </div>
-          <h1 style="margin:0; font-size:18px; color:var(--text);">HOVORY</h1>
-        </div>
-      </div>
+      <h1>EnergyPartners</h1>
       <button class="refresh-btn" id="refreshBtn" title="Obnoviť">⟳</button>
     </div>
     <div class="datesub" id="dateDisplay"></div>
@@ -286,14 +274,6 @@
         <b id="statOverdue">0</b>
         <span>Zmeškané</span>
       </div>
-      <div class="stat">
-        <b id="statWeek">0</b>
-        <span>Tento týždeň</span>
-      </div>
-      <div class="stat">
-        <b id="statAll">0</b>
-        <span>Celkem</span>
-      </div>
     </div>
   </div>
 
@@ -305,7 +285,10 @@
   </div>
 
   <div class="search-wrap">
-    <input type="text" class="search" id="searchInput" placeholder="Hľadaj spoločnosť alebo osobu...">
+    <div style="position:relative; display:flex; align-items:center;">
+      <input type="text" class="search" id="searchInput" placeholder="Hľadaj spoločnosť alebo osobu...">
+      <button id="searchClear" style="position:absolute; right:12px; background:none; border:none; color:var(--text-dim); font-size:20px; cursor:pointer; padding:4px 8px; display:none; transition:all .15s ease;">✕</button>
+    </div>
   </div>
 
   <main>
@@ -547,14 +530,27 @@ function render(){
 
 function updateStats(){
   const today = DATA.filter(d => d._bucket === 'today').length;
-  const overdue = DATA.filter(d => d._bucket === 'overdue').length;
-  const week = DATA.filter(d => d._bucket === 'week').length;
-  const all = DATA.length;
+  
+  // Počítať červené časy - časy v minulosti
+  let redCount = 0;
+  const now = new Date();
+  const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+  
+  DATA.forEach(item => {
+    if(item._date && item.time){
+      const itemDate = new Date(item._date.getFullYear(), item._date.getMonth(), item._date.getDate());
+      if(itemDate.getTime() === todayDate.getTime()){
+        const itemTimeMinutes = timeToMinutes(item.time);
+        if(itemTimeMinutes < currentTimeMinutes) redCount++;
+      } else if(itemDate < todayDate){
+        redCount++;
+      }
+    }
+  });
   
   document.getElementById('statToday').textContent = today;
-  document.getElementById('statOverdue').textContent = overdue;
-  document.getElementById('statWeek').textContent = week;
-  document.getElementById('statAll').textContent = all;
+  document.getElementById('statOverdue').textContent = redCount;
 }
 
 function showDetail(item){
@@ -670,6 +666,15 @@ document.getElementById('detailOverlay').addEventListener('click', (e) => {
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
   searchTerm = e.target.value;
+  const clearBtn = document.getElementById('searchClear');
+  clearBtn.style.display = searchTerm ? 'block' : 'none';
+  render();
+});
+
+document.getElementById('searchClear').addEventListener('click', () => {
+  document.getElementById('searchInput').value = '';
+  searchTerm = '';
+  document.getElementById('searchClear').style.display = 'none';
   render();
 });
 
